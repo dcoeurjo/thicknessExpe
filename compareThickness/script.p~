@@ -1,0 +1,17 @@
+reset 
+
+set title " Thickness distribution " 
+set xlabel " Cumulative distribution " 
+set ylabel " Radius " 
+
+set style data line 
+set pointsize 2 
+set key bottom right 
+
+plot "/home/williamaufort/Bureau/noise/helixnoise-sdf.txt" using 1:2 title "SDF", \
+"/home/williamaufort/Bureau/noise/helixnoise-50-newdata.txt" using 1:2 title "resol-50", \
+"/home/williamaufort/Bureau/noise/helixnoise-100-newdata.txt" using 1:2 title "resol-100", \
+"/home/williamaufort/Bureau/noise/helixnoise-150-newdata.txt" using 1:2 title "resol-150", \
+"/home/williamaufort/Bureau/noise/helixnoise-200-newdata.txt" using 1:2 title "resol-200", \
+"/home/williamaufort/Bureau/noise/helixnoise-250-newdata.txt" using 1:2 title "resol-250", \
+"/home/williamaufort/Bureau/noise/helixnoise-300-newdata.txt" using 1:2 title "resol-300", \

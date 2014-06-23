@@ -84,16 +84,7 @@ int main ( int argc, char * argv[] ) {
       j++;
   }
   // sort the SDF values
-
-  j = 0 ;
-  while (j < size ) {
-    int k = j ; 
-    while( k > 0 && values[k-1] > values[k] ) {
-      swap(values,k) ;
-      k-- ;
-    }  
-    j++ ;
-  };
+  sort(values.begin(),values.end());
   // Plot the local error
   
   std::string fileName= argv[1] ;
@@ -151,8 +142,6 @@ int main ( int argc, char * argv[] ) {
 }
 
 
-
-
 std::vector<int> findResolutions ( char * resolutionFile ) {
   std::vector<int> resolutions(1,0) ; // first = size 
   std::ifstream file(resolutionFile,std::ios::in);
@@ -170,13 +159,6 @@ std::vector<int> findResolutions ( char * resolutionFile ) {
   file.close() ;
   return resolutions ;
   // TODO : Sort the arraw ? ( optional )
-}
-
-void swap ( float * tab, int j ) {
-  float tampon = tab[j] ;
-  tab[j] = tab[j-1] ;
-  tab[j-1] = tampon ;
-  return ;
 }
 
 void afficheAide( void ) {

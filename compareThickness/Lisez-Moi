@@ -1,13 +1,15 @@
-*-----------------------------------------*
-|  Compare thickness computations methods |
-*-----------------------------------------*
+*------------------------------------------*
+|  Compare thickness computation's methods |
+*------------------------------------------*
+
+Note : Sorry if you find language faults in this document, the author hasn't got a perfect english.
 
 Usage :
 -------
 
-This programm compare the thickness distributions computed by :
+This programm compares the thickness distributions computed by :
   - the Shape Diameter Function method ;
-  - a volumetric method, with choosen resolutions ( for the convertion of the mesh ).
+  - a volumetric method, with chosen resolutions ( for the convertion of the mesh ).
 The result is saved in a gnuplot script and also a pdf file, where there are the differents
 curves plotted.
 
@@ -17,6 +19,7 @@ Needed :
 
 - Binvox
 - Cmake
+- CGAL
 
 
 How to compile :

@@ -129,6 +129,7 @@ float error( float a, float b ) {
 
 float squaredError ( float a, float b) {
   return (a-b)*(a-b) ;
+}
 
 std::string convertDouble(double number) {
    std::ostringstream ss;

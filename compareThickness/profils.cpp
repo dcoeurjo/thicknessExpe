@@ -67,15 +67,9 @@ int main ( int argc, char * argv[] ) {
   // compute SDF values
 
   std::pair<double, double> min_max_sdf = CGAL::sdf_values(mesh, sdf_property_map);
-
- /* int size = 0 ;
-  for(Polyhedron::Facet_const_iterator facet_it = mesh.facets_begin();
-      facet_it != mesh.facets_end(); ++facet_it) {
-      size++ ;
-  }*/
-  int size = mesh.size_of_facets() ;
   // put SDF values in an array
 
+  int size = mesh.size_of_facets() ;
   float values[size] ;
   int j = 0 ;
   for(Polyhedron::Facet_const_iterator facet_it = mesh.facets_begin();
@@ -85,8 +79,8 @@ int main ( int argc, char * argv[] ) {
   }
   // sort the SDF values
   sort(values.begin(),values.end());
-  // Plot the local error
-  
+  // Write in files
+
   std::string fileName= argv[1] ;
   std::string fileResults = fileName.substr(0,fileName.size()-4)+"-sdf.txt";
   std::ofstream fichier(fileResults.c_str(), std::ios::out);
@@ -103,7 +97,7 @@ int main ( int argc, char * argv[] ) {
   std::cout << "open file error" << std::endl ;
   return -1 ; 
   } ;
-    // Volumic calculations 
+    /* Volumic calculations */
 
     std::vector<int> resolutions = findResolutions(argv[2]) ;
     unsigned int taille = resolutions[0] ; // see findResolutions
@@ -157,8 +151,8 @@ std::vector<int> findResolutions ( char * resolutionFile ) {
       }
   }
   file.close() ;
+  sort(resolutions.begin(),resolutions.end());
   return resolutions ;
-  // TODO : Sort the arraw ? ( optional )
 }
 
 void afficheAide( void ) {
@@ -168,7 +162,7 @@ void afficheAide( void ) {
 }
 
   
-
+  // NOTE :
   // It is possible to compute the raw SDF values and post-process them using
   // the following lines:
   // const std::size_t number_of_rays = 25;  // cast 25 rays per facet

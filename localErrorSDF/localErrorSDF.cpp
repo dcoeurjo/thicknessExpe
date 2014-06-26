@@ -31,6 +31,7 @@ typedef Polyhedron::Halfedge_around_vertex_const_circulator    HV_circulator;
 // PROTOTYPES //
 
 float error( float a, float b );
+float squaredError ( float a, float b);
 std::string convertDouble(double number);
 std::vector<double> findBoxBorder ( Polyhedron P );
 double longestDiagonalLength ( Polyhedron P );
@@ -97,7 +98,7 @@ int main ( int argc, char * argv[] ) {
         // Calculations
         int j = 0 ;
         for(j=0;j<size;j++) {
-             localError[j] = error(sdfValues[j],sdfNoisedValues[j]);
+             localError[j] = error(sdfValues[j],sdfNoisedValues[j]); // squaredError if you want the mean squared error
         };
         // Sort the values 
         std::sort(localError.begin(),localError.end());
@@ -125,6 +126,9 @@ float error( float a, float b ) {
       return std::abs(a-b)/a ;
   }
 }
+
+float squaredError ( float a, float b) {
+  return (a-b)*(a-b) ;
 
 std::string convertDouble(double number) {
    std::ostringstream ss;
@@ -176,6 +180,9 @@ double longestDiagonalLength ( Polyhedron P ) {
   double deltaZ = borders[5]-borders[4] ;
   return sqrt(deltaX*deltaX + deltaY*deltaY + deltaZ*deltaZ) ;
 }
+
+// return the global error if the function "error" is used ,
+// or the mean squared error if the function "squaredError" is used. 
 
 
 float computeGlobalError( std::vector<float> localError ) {

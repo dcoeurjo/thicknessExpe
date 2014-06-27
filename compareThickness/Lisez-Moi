@@ -21,12 +21,33 @@ Needed :
 - Cmake
 - CGAL ( https://www.cgal.org/ )
 - MAEVA Toolit install ( http://liris.cnrs.fr/david.coeurjolly/code/maeva.html )
+- "raw2vol" executable in DGtalTools ( http://dgtal.org/tools/ )
+-
 
 
 How to compile :
 ----------------
 
+Be careful
+----------
+
+In off2vol.sh, my path for raw2vol is : ~/Documents/logiciels/DGtalTools/build/converters/raw2vol
+
+Change this path by yours ( the part after DGtalTools must be the same as mine )
+
+
+- volFillExterior
+-----------------
+$ cd volFillExterior
 $ cd build
+$ cmake ..
+$ make
+
+- main programm
+---------------
+
+
+$ cd ../../build
 $ g++ -Wall compare_resol.cpp -o compare_resol
 $ cmake ..
 $ make
@@ -41,5 +62,6 @@ $./profils path/to/the/.off/object.off path/to/the/resolutions/file.txt
 example : with the resolutions.txt file included :
 
 ./profils ~/Documents/objects/object.off resolutions.txt  
+
 
 	

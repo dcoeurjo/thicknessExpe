@@ -17,9 +17,10 @@ curves plotted.
 Needed :
 --------
 
-- Binvox
+- Binvox ( http://www.cs.princeton.edu/~min/binvox/ )
 - Cmake
-- CGAL
+- CGAL ( https://www.cgal.org/ )
+- MAEVA Toolit install ( http://liris.cnrs.fr/david.coeurjolly/code/maeva.html )
 
 
 How to compile :

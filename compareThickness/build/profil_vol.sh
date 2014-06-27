@@ -1,10 +1,15 @@
 #!/bin/bash
 
 OFFNAME=$1
-~/Documents/off2vol.sh $OFFNAME $2
+off2vol.sh $OFFNAME $2
 VOLNAME=${OFFNAME%%.off}-$2.vol
 FILENAME=${OFFNAME%%.off}-$2-data.txt
-thicknessComputationApproxLinear -i $VOLNAME -o tmp.longvol > $FILENAME
+
+voladdborder $VOLNAME tmp.vol
+rm $VOLNAME
+mv tmp.vol $VOLNAME
+
+thicknessComputationHildebrand -i $VOLNAME -o tmp.longvol > $FILENAME
 rm tmp.longvol 
 rm $VOLNAME
 

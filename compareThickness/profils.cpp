@@ -70,7 +70,7 @@ int main ( int argc, char * argv[] ) {
   // put SDF values in an array
 
   int size = mesh.size_of_facets() ;
-  float values[size] ;
+  std::vector<float> values(size) ;
   int j = 0 ;
   for(Polyhedron::Facet_const_iterator facet_it = mesh.facets_begin();
       facet_it != mesh.facets_end(); ++facet_it) {
@@ -78,7 +78,7 @@ int main ( int argc, char * argv[] ) {
       j++;
   }
   // sort the SDF values
-  sort(values.begin(),values.end());
+  sort(values.begin(),values.end()) ;
   // Write in files
 
   std::string fileName= argv[1] ;
@@ -88,7 +88,7 @@ int main ( int argc, char * argv[] ) {
       fichier << "number_points SDF" << std::endl ; // entete 
       fichier << "0 0" << std::endl ;
       for(j=0;j<size;j++) {
-          fichier << j+1 << " " << values[j] << std::endl ;
+          fichier << ((double) (j+1)) / ((double) size) << " " << values[j] << std::endl ;
       }
       fichier.close() ;
       scriptFile << "\""+fileResults+"\" using 1:2 title \"SDF\", \\" << std::endl ;

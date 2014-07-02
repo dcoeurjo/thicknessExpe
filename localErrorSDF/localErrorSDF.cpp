@@ -30,27 +30,30 @@ typedef Polyhedron::Halfedge_around_vertex_const_circulator    HV_circulator;
 
 // PROTOTYPES //
 
+std::vector<double> findMagnitudes ( char * magnitudeFile ) ;
 float error( float a, float b );
-float squaredError ( float a, float b);
+float squaredError(float a, float b);
 std::string convertDouble(double number);
 std::vector<double> findBoxBorder ( Polyhedron P );
 double longestDiagonalLength ( Polyhedron P );
 float computeGlobalError( std::vector<float> localError );
 int createNoiseOff ( char * fileName, const char * outputName, double magnitude, int option);
 std::vector<float> sdf_values ( const char * fileName );   	
-void createGlobalErrorScript(std::string fileName, std::vector<float> globalError, std::vector<float> noiseMagnitudes );
+void createGlobalErrorScript(std::string fileName, std::vector<double> globalError, std::vector<double> noiseMagnitudes );
 
 
 int main ( int argc, char * argv[] ) {
-    // argv[1] = filename 
-    // argv[2] = option ( for noise )
+    // argv[1] = filename
+    // argv[2] = noise magnitudes file 
+    // argv[3] = option ( for noise )
+    if ( argc != 4 ) {
+        std::cerr << "Not the good number of arguments" << std::endl ;
+        return -1 ;
+    }
     std::vector<float> sdfValues = sdf_values(argv[1]) ;  
-    int const nbValues = 3 ;
-    std::vector<float> noiseMagnitudes(nbValues) ;
-      noiseMagnitudes[0] = 0.01 ;
-      noiseMagnitudes[1] = 0.05 ;
-      noiseMagnitudes[2] = 0.1 ;
-    std::vector<float> globalError(nbValues) ;
+    std::vector<double> noiseMagnitudes = findMagnitudes(argv[2]);
+    unsigned int nbValues = noiseMagnitudes.size() ;
+    std::vector<double> globalError(nbValues) ;
     // Init script file header
     std::string fileName = argv[1] ;
     std::string scriptName = fileName.substr(0,fileName.size()-4)+"-script.p" ;
@@ -77,7 +80,7 @@ int main ( int argc, char * argv[] ) {
     for ( i = 0 ; i < nbValues ; i++ ) {
         // Compute the local error with the different noise magnitudes 
         std::string noiseName = fileName.substr(0,fileName.size()-4)+"s="+convertDouble(noiseMagnitudes[i])+"%.off" ;	
-        int create = createNoiseOff(argv[1],noiseName.c_str(),noiseMagnitudes[i],atoi(argv[2]));
+        int create = createNoiseOff(argv[1],noiseName.c_str(),noiseMagnitudes[i],atoi(argv[3]));
         if ( create != 0) {
             std::cerr << " Error when create noised mesh " << std::endl ;
             return -1 ;  
@@ -98,7 +101,7 @@ int main ( int argc, char * argv[] ) {
         // Calculations
         int j = 0 ;
         for(j=0;j<size;j++) {
-             localError[j] = error(sdfValues[j],sdfNoisedValues[j]); // squaredError if you want the mean squared error
+             localError[j] = error(sdfValues[j],sdfNoisedValues[j]);
         };
         // Sort the values 
         std::sort(localError.begin(),localError.end());
@@ -116,6 +119,23 @@ int main ( int argc, char * argv[] ) {
 /********************\
 | Auxilary functions |
 \********************/
+
+std::vector<double> findMagnitudes ( char * magnitudeFile ) {
+  std::vector<double> magnitudes ;
+  std::ifstream file(magnitudeFile,std::ios::in);
+  if (!file) {
+      std::cerr << "Error: open magnitude file" << std::endl ;
+  }
+  else {
+      std::string word ;
+      while (file >> word) {
+          double magn = atof(word.c_str()) ;
+          magnitudes.push_back(magn) ;
+      }
+  }
+  file.close() ;
+  return magnitudes ;
+}
 
 
 float error( float a, float b ) {
@@ -182,9 +202,9 @@ double longestDiagonalLength ( Polyhedron P ) {
   return sqrt(deltaX*deltaX + deltaY*deltaY + deltaZ*deltaZ) ;
 }
 
-// return the global error if the function "error" is used ,
-// or the mean squared error if the function "squaredError" is used. 
 
+// return the global error if the function "error" is used ,
+// or the mean squared error if the function "squaredError" is used.
 
 float computeGlobalError( std::vector<float> localError ) {
   int size = localError.size() ;
@@ -311,7 +331,7 @@ std::vector<float> sdf_values ( const char * fileName ) {
 }
 
 
-void createGlobalErrorScript(std::string fileName, std::vector<float> globalError, std::vector<float> noiseMagnitudes ) {
+void createGlobalErrorScript(std::string fileName, std::vector<double> globalError, std::vector<double> noiseMagnitudes ) {
     // Create file with results
     std::string resultsName = fileName.substr(0,fileName.size()-4)+"-global-error.txt" ; 
     std::ofstream resultsFile(resultsName.c_str(),std::ios::out) ;

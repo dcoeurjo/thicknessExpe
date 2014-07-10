@@ -1,0 +1,86 @@
+/************************************\
+| Deux versions Earth Mover Distance |
+\************************************/
+
+1) withFiles 
+-------------
+
+Calcule l'Earth Mover Distance entre deux histogrammes a une dimension.
+Avec la condition de normalisation habituelle : les deux histogrammes doivent avoir le 
+meme effectif totaln mais egalement la meme 'precision' ( les memes intervalles de valeurs
+consideres : ex [0,1] [1,2] et [2,3] )
+
+Remarque : C'est le cas avec les calculs d'epaisseur.
+
+Inputs : les deux histogrammes sous la forme d'un fichier.txt
+
+Output ; 
+
+Compilation 
+-----------
+
+Tout simplement :
+
+g++ -Wall emd.cpp -o emd
+
+Utilisation
+------------
+
+./emd path/to/the/first/data.txt path/to/the/second/data.txt
+
+2) withoutFiles ( cas VOLUMIQUE uniquement )
+---------------------------------------------
+
+Calcul l'Earth Mover Distance entre plusieurs couples d'histogramme de type :
+(non_bruité,bruité).
+On peut donner les différentes amplitudes de bruits, par contre on ne donne qu'une seule
+resolution pour les objets volumiques ( prendre en consideration plusieurs resolutions ne
+changerai pas beaucoup le code ... )
+
+Inputs : 
+- Une image sous format OFF
+- Un fichier TXT contenant les amplitudes de bruits
+- Un type de bruit :
+  1 : cubique ( gaussien selon les 3 coordonnees )
+  2 : spherique ( gaussien selon les 3 coordonnees avec filtrage pour rester dans une 
+sphere de rayon le parametree sigma des gaussiennes )
+  3 : normal ( gaussien selon la normale a chaque sommet )
+- une resolution d'image ( pour la voxelisation )
+
+Necessite :
+-----------
+
+- l'executable longvol2sphere ( l'executable se trouve dans longvol2sphere/build, le 
+dossier longvol2sphere contient le code )
+
+Ne pas oublier de changer dans le script bash "off2spheres" ( build )  le chemin vers 
+longvol2sphere ( ligne 12 du code )
+
+- le script off2vol ( Attention : besoin d'outils DGtalTools, n'oublier pas de changer 
+les chemins dans le script aussi )
+
+Idem, changer le chemin dans "off2spheres"
+
+- MAEVA Toolkit ( http://liris.cnrs.fr/david.coeurjolly/code/maeva.html )
+
+Compilation 
+-----------
+
+$ cd build 
+$ cmake ..
+$ cmake .. # Necessaire pour voir les generateurs gaussiens... Pas de solution trouvee a ce jour ( honte a moi )
+$ make
+
+Utilisation
+-----------
+
+Dans le repertoire build :
+
+./emdVol path/to/my/object.off path/to/magnitudes.txt option resolution
+
+Exemple : Pour un bruit cubique, une resolution 250x250x250, avec les magnitudes donnees
+en exemple, et un objet dans Documents : 
+
+./emdVol ~/Documents/myObject.off ../magnitudes_example.txt
+
+

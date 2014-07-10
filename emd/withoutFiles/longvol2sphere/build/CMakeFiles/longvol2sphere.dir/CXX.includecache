@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/williamaufort/Bureau/compareNoiseVolBox/longvol2sphere/longvol2sphere.cc
+stdio.h
+-
+stdlib.h
+-
+longvol.h
+-
+iostream
+-
+math.h
+-
+cstdlib
+-
+fstream
+-
+

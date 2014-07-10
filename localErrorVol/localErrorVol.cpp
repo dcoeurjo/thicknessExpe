@@ -39,28 +39,16 @@ typedef Polyhedron::Halfedge_around_vertex_const_circulator    HV_circulator;
 |  Volumetric method robustness against noise  |
 \**********************************************/
 
-// Here we compare the influence of the resolution of the volumic image.
-// If we want to consider the magnitude of the noise, we have to modify
-// few lines of the code.
-
-
 int main ( int argc, char * argv[] ) {
     // argv[1] = filename ( type .off )
-    // argv[2] = resolutions 
+    // argv[2] = magnitudes of noise
     // argv[3] = type of noise (1,2,3)
-    // argv[4] = magnitude of noise 
+    // argv[4] = resolution
      
-    // get the resolutions
-    std::vector<int> resolutions = getResolutions(argv[2]) ;
-    // build the off noised mesh
-    std::string offName = argv[1] ; 
-    std::string noisedOffName = offName.substr(0,offName.size()-4)+"-noised.off" ;
-    int s = createNoiseOff(argv[1], noisedOffName.c_str(),atof(argv[4]),atoi(argv[3])) ;
-    if ( s != 0 ) {
-        std::cerr << "Error when creating the noised mesh " << std::endl ;
-        return -1 ;
-    }
+    // get the magnitudes
+    std::vector<double> magnitudes = getMagnitudes(argv[2]) ;
     // init script
+    std::string offName = argv[1] ; 
     std::string scriptName = offName.substr(0,offName.size()-4)+"-script.p" ;
     std::ofstream scriptFile(scriptName.c_str(),std::ios::out) ;
     if ( !scriptFile ) {
@@ -81,28 +69,41 @@ int main ( int argc, char * argv[] ) {
     scriptFile << std::endl ;
     scriptFile << "plot " ;
     std::cout << "Script ok !" << std::endl ;
-    // init arrays
 
+
+    int resolution = atoi(argv[4]) ;
     // main loop //
     unsigned int i ;
-    for ( i = 0 ; i < resolutions.size() ; i++ ) {
-        Calcul calc(resolutions[i]) ; 
-        std::vector<double> thickWithoutNoise = offToThick(offName,resolutions[i],calc) ;
-        initMaxRadius(resolutions[i]) ; // maxRadius = 0 for all points
-        std::vector<double> thickWithNoise = offToThick(noisedOffName.c_str(),resolutions[i],calc) ;
+    for ( i = 0 ; i < magnitudes.size() ; i++ ) {
+        // build the off noised mesh
+        std::string noisedOffName = offName.substr(0,offName.size()-4)+"-s="+doubleToString(magnitudes[i])+"%.off" ;
+        int s = createNoiseOff(argv[1], noisedOffName.c_str(),magnitudes[i],atoi(argv[3])) ;
+        if ( s != 0 ) {
+            std::cerr << "Error when creating the noised mesh " << std::endl ;
+            return -1 ;
+        }
+        // compute thickness 
+        Calcul calc(resolution) ; 
+        std::vector<double> thickWithoutNoise = offToThick(offName,resolution,calc) ;
+        initMaxRadius(resolution) ; // maxRadius = 0 for all points
+        std::vector<double> thickWithNoise = offToThick(noisedOffName.c_str(),resolution,calc) ;
         freeArrays() ;
-        // Note : thickWithoutNoise.size() == thickWithNoise.size()) == resolution^3
-        std::string fileResults = noisedOffName.substr(0,noisedOffName.size()-4)+"-"+doubleToString(resolutions[i])+"-local-error.txt";
-        std::ofstream fichier(fileResults.c_str(), std::ios::out);
-        if( !fichier ){ 
+        std::string firstFileResults = offName.substr(0,offName.size()-1)+"-thick.txt" ;
+        std::string fileResults = noisedOffName.substr(0,noisedOffName.size()-4)+"-local-error.txt";
+        std::string thickFilename = noisedOffName.substr(0,noisedOffName.size()-4)+"-s="+doubleToString(magnitudes[i])+"%-thick.txt";
+        std::ofstream errorFile(fileResults.c_str(), std::ios::out);
+        std::ofstream thickFile(thickFilename.c_str(),std::ios::out);
+        std::ofstream firstFile(firstFileResults.c_str(),std::ios::out);
+        if( !errorFile || !thickFile || !firstFile ){ 
             std::cout << " Error in creating file " << fileResults << std::endl;
             return -1 ;
         } 
         // Compute the local error
         std::cout << "Calculations... " ;
         int j = 0 ;
-        int size = resolutions[i] * resolutions[i] * resolutions[i] ;
+        int size = resolution * resolution * resolution ;
         std::vector<double> localError ;
+        std::vector<double> realValues ;
         for(j=0;j<size;j++) {
              // We consider the points which belong to the two meshes
              if ((thickWithoutNoise[j] != 0) && (thickWithNoise[j] != 0)) {
@@ -112,13 +113,18 @@ int main ( int argc, char * argv[] ) {
         std::cout << "Ok" << std::endl << "Sort ... " ;
         // Sort the values 
         std::sort(localError.begin(),localError.end());
+        std::sort(thickWithNoise.begin(),thickWithNoise.end());
+        std::sort(thickWithoutNoise.begin(),thickWithoutNoise.end());
         // Put in file
         std::cout << "Ok" << std::endl << "Write in files... " ;
         int taille = localError.size() ;
         for(j=0;j<taille;j++) {
-            fichier << (j+1)*100.0/( (float) taille) << " " << localError[j] << std::endl ;
+           errorFile << (j+1)*100.0/( (float) taille) << " " << localError[j] << std::endl ;
+           thickFile << (j+1)*100.0/( (float) taille) << " " << thickWithNoise[j] << std::endl ;
+           firstFile << (j+1)*100.0/( (float) taille) << " " << thickWithoutNoise[j] << std::endl ;
+           
         };
-        scriptFile << "\""+fileResults+"\" using 1:2 title \"resol = "+doubleToString(resolutions[i])+"\", \\" 
+        scriptFile << "\""+fileResults+"\" using 1:2 title \"resol = " << resolution << "\", \\" 
         << std::endl ;
         std::cout << "Ok" << std::endl;
     };
@@ -142,7 +148,23 @@ std::string doubleToString(double number) {
    return ss.str();
 }
 
-double stringToDouble ( const std::string &s ) {
+
+std::string intToString(int number) {
+   std::ostringstream ss;
+   ss << number;
+   return ss.str();
+}
+
+
+
+int stringToInt ( const std::string &s ) {
+    std::stringstream convert(s) ;
+    int number ;
+    convert >> number ;
+    return number ;
+}
+
+int stringToDouble ( const std::string &s ) {
     std::stringstream convert(s) ;
     double number ;
     convert >> number ;
@@ -325,22 +347,22 @@ int createNoiseOff ( char * fileName, const char * outputName, double magnitude,
 | Thickness and local error calculations |
 \****************************************/
 
-std::vector<int> getResolutions ( char * resolutionFile ) {
-  std::vector<int> resolutions ; 
-  std::ifstream file(resolutionFile,std::ios::in);
+std::vector<double> getMagnitudes ( char * magnitudeFile ) {
+  std::vector<double> magnitudes ; 
+  std::ifstream file(magnitudeFile,std::ios::in);
   if (!file) {
       std::cerr << "Error: open resolution file" << std::endl ;
   }
   else {
       std::string line ;
       while (getline(file,line)) {
-          int resol = atoi(line.c_str()) ;
-          resolutions.push_back(resol) ;
+          double magnitude = atof(line.c_str()) ;
+          magnitudes.push_back(magnitude) ;
       }
   }
   file.close() ;
-  sort(resolutions.begin(),resolutions.end()) ;
-  return resolutions ;
+  sort(magnitudes.begin(),magnitudes.end()) ;
+  return magnitudes ;
 }
 
 float error( float a, float b ) {
@@ -351,12 +373,12 @@ float error( float a, float b ) {
 
 std::vector<double> offToThick(std::string filename, int resolution, Calcul& calc ) {
     std::string offName = filename ;
-    std::string systemCall = "bash off2spheres.sh "+offName+" "+doubleToString(resolution) ;
+    std::string systemCall = "bash off2spheres.sh "+offName+" "+intToString(resolution) ;
     int s = system(systemCall.c_str()) ;
     if ( s != 0 ) {
         std::cerr << "Bash script error" << std::endl ;
     }
-    std::string spheresFile = filename.substr(0,filename.size()-4)+"-"+doubleToString(resolution)+"-spheres.txt" ;
+    std::string spheresFile = filename.substr(0,filename.size()-4)+"-"+intToString(resolution)+"-spheres.txt" ;
     std::vector<double> thick = spheresToThick(spheresFile.c_str(),resolution,0,calc) ;
     return thick ;
 }

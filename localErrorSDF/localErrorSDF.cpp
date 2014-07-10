@@ -38,6 +38,7 @@ std::vector<double> findBoxBorder ( Polyhedron P );
 double longestDiagonalLength ( Polyhedron P );
 float computeGlobalError( std::vector<float> localError );
 int createNoiseOff ( char * fileName, const char * outputName, double magnitude, int option);
+double findBoxDimension ( Polyhedron P );
 std::vector<float> sdf_values ( const char * fileName );   	
 void createGlobalErrorScript(std::string fileName, std::vector<double> globalError, std::vector<double> noiseMagnitudes );
 
@@ -50,12 +51,27 @@ int main ( int argc, char * argv[] ) {
         std::cerr << "Not the good number of arguments" << std::endl ;
         return -1 ;
     }
+    std::string fileName = argv[1] ;
+    std::string sdfName = fileName.substr(0,fileName.size()-4)+"-sdf.txt";
     std::vector<float> sdfValues = sdf_values(argv[1]) ;  
+    int size = sdfValues.size() ;
+    // Ligne a enlever plus tard
+    std::sort(sdfValues.begin(),sdfValues.end());
+    std::ofstream file(sdfName.c_str(), std::ios::out);
+    if( !file ){ 
+        std::cerr << " Error in creating file " <<  std::endl;
+        return -1 ;
+    }
+    int k = 0 ;
+    // Put in file
+    for(k=0;k<size;k++) {
+        file << (k+1)*100.0/( (float) size) << " " << sdfValues[k] << std::endl ;
+        };
     std::vector<double> noiseMagnitudes = findMagnitudes(argv[2]);
     unsigned int nbValues = noiseMagnitudes.size() ;
-    std::vector<double> globalError(nbValues) ;
+    //std::vector<double> globalError(nbValues) ;
     // Init script file header
-    std::string fileName = argv[1] ;
+
     std::string scriptName = fileName.substr(0,fileName.size()-4)+"-script.p" ;
     std::ofstream scriptFile(scriptName.c_str(),std::ios::out) ;
     if ( !scriptFile ) {
@@ -76,40 +92,55 @@ int main ( int argc, char * argv[] ) {
     scriptFile << "set key bottom right " << std::endl ;
     scriptFile << std::endl ;
     scriptFile << "plot " ;
+    
     unsigned int i ;
     for ( i = 0 ; i < nbValues ; i++ ) {
         // Compute the local error with the different noise magnitudes 
-        std::string noiseName = fileName.substr(0,fileName.size()-4)+"s="+convertDouble(noiseMagnitudes[i])+"%.off" ;	
+        std::string noiseName = fileName.substr(0,fileName.size()-4)+"s="+convertDouble(noiseMagnitudes[i])+"%.off" ;
+        std::cout << "Create noised mesh... " ;	
         int create = createNoiseOff(argv[1],noiseName.c_str(),noiseMagnitudes[i],atoi(argv[3]));
         if ( create != 0) {
             std::cerr << " Error when create noised mesh " << std::endl ;
             return -1 ;  
         }
+        std::cout << "Ok" << std::endl << "SDF VALUES ..." << std::endl ;
         std::vector<float> sdfNoisedValues = sdf_values(noiseName.c_str()) ; 
-        int size = sdfValues.size() ;
         if ( size == 0) {
             return -1 ;
         }
+        
         std::vector<float> localError(size,0.0) ;
         // Important note : The facet numbering is the same for the different OFF files
-        std::string fileResults = noiseName.substr(0,noiseName.size()-4)+"-local-error.txt";
-        std::ofstream fichier(fileResults.c_str(), std::ios::out);
-        if( !fichier ){ 
-            std::cerr << " Error in creating file " << fileResults << std::endl;
+        std::string errorResults = noiseName.substr(0,noiseName.size()-4)+"-local-error.txt";
+        
+        std::string sdfResults = noiseName.substr(0,noiseName.size()-4)+"-sdf.txt";
+       // std::ofstream errorFile(errorResults.c_str(), std::ios::out);
+        std::ofstream sdfFile(sdfResults.c_str(), std::ios::out);
+        if( /*!errorFile ||*/ !sdfFile ){ 
+            std::cerr << " Error in creating file " <<  std::endl;
             return -1 ;
         }
         // Calculations
+        
+        std::cout << "Compute local error... " ;
+        
         int j = 0 ;
+        
         for(j=0;j<size;j++) {
              localError[j] = error(sdfValues[j],sdfNoisedValues[j]);
         };
         // Sort the values 
         std::sort(localError.begin(),localError.end());
+        
+        std::sort(sdfNoisedValues.begin(),sdfNoisedValues.end());
+        std::cout << "Ok" << std::endl << "Write in file ... " ;
         // Put in file
         for(j=0;j<size;j++) {
-            fichier << (j+1)*100.0/( (float) size) << " " << localError[j] << std::endl ;
+            errorFile << (j+1)*100.0/( (float) size) << " " << localError[j] << std::endl ;
+            sdfFile << (j+1)*100.0/( (float) size) << " " << sdfNoisedValues[j] << std::endl ;
         };
-        scriptFile << "\""+fileResults+"\" using 1:2 title \"s="+convertDouble(noiseMagnitudes[i])+"%\", \\" << std::endl ;
+        std::cout << "Ok" << std::endl ;
+        scriptFile << "\""+errorResults+"\" using 1:2 title \"s="+convertDouble(noiseMagnitudes[i])+"%\", \\" << std::endl ;
         globalError[i] = computeGlobalError(localError) ; 
     } ;
     createGlobalErrorScript(fileName, globalError, noiseMagnitudes) ;
@@ -304,6 +335,42 @@ int createNoiseOff ( char * fileName, const char * outputName, double magnitude,
     return 0;
 }
 
+double findBoxDimension ( Polyhedron P ) {
+  Vertex_iterator v = P.vertices_begin() ;
+  std::vector<double> borders(6) ;
+    borders[0] = v->point().x() ;
+    borders[1] = v->point().x() ;
+    borders[2] = v->point().y() ;
+    borders[3] = v->point().y() ;
+    borders[4] = v->point().z() ;
+    borders[5] = v->point().z() ;
+  do {
+      double x = v->point().x() ;
+      double y = v->point().y() ;
+      double z = v->point().z() ; 
+      if ( x < borders[0] ) {
+          borders[0] = x ;
+      }
+      else if ( x > borders[1] ) {
+          borders[1] = x ;
+      }
+      if ( y < borders[2] ) {
+          borders[2] = y ;
+      }
+      else if ( y > borders[3] ) {
+          borders[3] = y ;
+      }
+      if ( z < borders[4] ) {
+          borders[4] = z ;
+      }
+      else if ( z > borders[5] ) {
+          borders[5] = z ;
+      }
+  } while ( v++ != P.vertices_end() ) ;
+   double values[] = {borders[1]-borders[0],borders[3]-borders[2],borders[5]-borders[4] } ;
+   return *std::max_element(values,values+3) ; 
+}
+
 
 std::vector<float> sdf_values ( const char * fileName ) {
   // create and read Polyhedron
@@ -312,21 +379,29 @@ std::vector<float> sdf_values ( const char * fileName ) {
   if ( !input || !(input >> mesh) || mesh.empty() ) {
     std::cerr << "Not a valid .off file." << std::endl;
   }
+  // To normalize
+  std::cout << "Find box dimensions... " ;
+  double factor = findBoxDimension(mesh) ;
+  std::cout << "Ok" << std::endl ;
   // create a property-map
   typedef std::map<Polyhedron::Facet_const_handle, double> Facet_double_map;
   Facet_double_map internal_map;
   boost::associative_property_map<Facet_double_map> sdf_property_map(internal_map);
   // compute SDF values
+  std::cout << "Compute SDF values ... " ;
   std::pair<double, double> min_max_sdf = CGAL::sdf_values(mesh, sdf_property_map);
+  std::cout << "Ok" << std::endl ;
   int size = mesh.size_of_facets() ;
   // put SDF values in an array
   std::vector<float> values(size) ;
   int j = 0 ;
+  std::cout << " Normalize ... " ;
   for(Polyhedron::Facet_const_iterator facet_it = mesh.facets_begin();
       facet_it != mesh.facets_end(); ++facet_it) {
-      values[j] = sdf_property_map[facet_it] ;
+      values[j] = ((min_max_sdf.second - min_max_sdf.first) * sdf_property_map[facet_it] + min_max_sdf.first) / (2*factor) ;
       j++;
   }
+  std::cout << "Ok" << std::endl ;
   return values ;
 }
 

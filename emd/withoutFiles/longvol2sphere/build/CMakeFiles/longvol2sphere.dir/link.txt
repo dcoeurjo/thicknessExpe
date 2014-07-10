@@ -1,0 +1,1 @@
+/usr/bin/c++       CMakeFiles/longvol2sphere.dir/longvol2sphere.cc.o  -o longvol2sphere  -L/libvol/src  -L/liblongvol/src -rdynamic -lvol -llongvol -Wl,-rpath,/libvol/src:/liblongvol/src 

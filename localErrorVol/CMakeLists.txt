@@ -2,7 +2,7 @@
 # This is the CMake script for compiling a CGAL application.
 
 
-project( CompareNoiseVol-With-Boxes )
+project( Local-Error-Vol )
 
 cmake_minimum_required(VERSION 2.6.2)
 if("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" VERSION_GREATER 2.6)
@@ -28,7 +28,7 @@ if ( CGAL_FOUND )
 
   include_directories (BEFORE "../../../../usr/local/include")
 
-  create_single_source_cgal_program( "compareNoiseVolBox.cpp" )
+  create_single_source_cgal_program( "localErrorVol.cpp" )
 
 else()
   

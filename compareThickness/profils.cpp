@@ -13,10 +13,12 @@
 
 typedef CGAL::Exact_predicates_inexact_constructions_kernel Kernel;
 typedef CGAL::Polyhedron_3<Kernel> Polyhedron;
+typedef Polyhedron::Vertex_iterator Vertex_iterator;
  
 std::vector<int> findResolutions ( char * resolutionFile ) ;
 void swap ( float * tab, int j ) ;
 void afficheAide( void );
+double findBoxDimension ( Polyhedron P );
 
 int main ( int argc, char * argv[] ) {
     if ( argc == 1 ) {
@@ -32,6 +34,7 @@ int main ( int argc, char * argv[] ) {
         std::cerr << "Open script file error" << std::endl ;
         return -1 ;
     }  
+    std::string fileName= argv[1] ;
     // Init file header
     scriptFile << "reset " << std::endl ;
     scriptFile << std::endl ;
@@ -67,28 +70,32 @@ int main ( int argc, char * argv[] ) {
   // compute SDF values
 
   std::pair<double, double> min_max_sdf = CGAL::sdf_values(mesh, sdf_property_map);
-  // put SDF values in an array
+  std::cout << " SDF min value : " << min_max_sdf.first << ", SDF max value : " << min_max_sdf.second << std::endl ; 
 
   int size = mesh.size_of_facets() ;
+  // put SDF values in an array
+
   std::vector<float> values(size) ;
   int j = 0 ;
+  double factor = findBoxDimension(mesh) ;
   for(Polyhedron::Facet_const_iterator facet_it = mesh.facets_begin();
       facet_it != mesh.facets_end(); ++facet_it) {
-      values[j] = sdf_property_map[facet_it] ;
+      values[j] = ((min_max_sdf.second - min_max_sdf.first) * sdf_property_map[facet_it] + min_max_sdf.first) / (2*factor) ;
       j++;
   }
   // sort the SDF values
-  sort(values.begin(),values.end()) ;
+  sort(values.begin(),values.end());
   // Write in files
 
-  std::string fileName= argv[1] ;
+
+
   std::string fileResults = fileName.substr(0,fileName.size()-4)+"-sdf.txt";
   std::ofstream fichier(fileResults.c_str(), std::ios::out);
   if( fichier ){ 
       fichier << "number_points SDF" << std::endl ; // entete 
       fichier << "0 0" << std::endl ;
       for(j=0;j<size;j++) {
-          fichier << ((double) (j+1)) / ((double) size) << " " << values[j] << std::endl ;
+          fichier << ((double) (j+1)) / ((double) size) * 100 << " " << values[j] << std::endl ;
       }
       fichier.close() ;
       scriptFile << "\""+fileResults+"\" using 1:2 title \"SDF\", \\" << std::endl ;
@@ -97,7 +104,8 @@ int main ( int argc, char * argv[] ) {
   std::cout << "open file error" << std::endl ;
   return -1 ; 
   } ;
-    /* Volumic calculations */
+
+    // Volumic calculations //
 
     std::vector<int> resolutions = findResolutions(argv[2]) ;
     unsigned int taille = resolutions[0] ; // see findResolutions
@@ -119,24 +127,21 @@ int main ( int argc, char * argv[] ) {
         if ( s != 0 ) {
             std::cerr << "profil_vol call failed" << std::endl ;
             return -1 ;
-        }
+        } ;
         // Fill the script file
         scriptFile << "\""+fileName.substr(0,fileName.size()-4)+"-"+resol+"-newdata.txt\" using 1:2 title \"resol-"+resol+"\", \\" << std::endl ;  
+        std::cout << "ok" << std::endl ;        
     }
 
   // plot 
   scriptFile.close() ;
-  int s = system("gnuplot -persist script.p") ;
-  if ( s < 0 ) {
-      std::cerr << "gnuplot error" << std::endl ;
-      return -1 ;
-  }
-  else
   return 0;
 }
 
 
-std::vector<int> findResolutions ( char * resolutionFile ) {
+
+
+ std::vector<int> findResolutions ( char * resolutionFile ) {
   std::vector<int> resolutions(1,0) ; // first = size 
   std::ifstream file(resolutionFile,std::ios::in);
   if (!file) {
@@ -151,8 +156,15 @@ std::vector<int> findResolutions ( char * resolutionFile ) {
       }
   }
   file.close() ;
-  sort(resolutions.begin(),resolutions.end());
   return resolutions ;
+  // TODO : Sort the arraw ? ( optional )
+}
+
+void swap ( float * tab, int j ) {
+  float tampon = tab[j] ;
+  tab[j] = tab[j-1] ;
+  tab[j-1] = tampon ;
+  return ;
 }
 
 void afficheAide( void ) {
@@ -161,8 +173,45 @@ void afficheAide( void ) {
     std::cout << "Output: a gnuplot script and a pdf figure with the distributions." << std::endl ;
 }
 
+double findBoxDimension ( Polyhedron P ) {
+  Vertex_iterator v = P.vertices_begin() ;
+  std::vector<double> borders(6) ;
+    borders[0] = v->point().x() ;
+    borders[1] = v->point().x() ;
+    borders[2] = v->point().y() ;
+    borders[3] = v->point().y() ;
+    borders[4] = v->point().z() ;
+    borders[5] = v->point().z() ;
+  do {
+      double x = v->point().x() ;
+      double y = v->point().y() ;
+      double z = v->point().z() ; 
+      if ( x < borders[0] ) {
+          borders[0] = x ;
+      }
+      else if ( x > borders[1] ) {
+          borders[1] = x ;
+      }
+      if ( y < borders[2] ) {
+          borders[2] = y ;
+      }
+      else if ( y > borders[3] ) {
+          borders[3] = y ;
+      }
+      if ( z < borders[4] ) {
+          borders[4] = z ;
+      }
+      else if ( z > borders[5] ) {
+          borders[5] = z ;
+      }
+  } while ( v++ != P.vertices_end() ) ;
+   double values[] = {borders[1]-borders[0],borders[3]-borders[2],borders[5]-borders[4] } ;
+   return *std::max_element(values,values+3) ; 
+}
+
+
   
-  // NOTE :
+
   // It is possible to compute the raw SDF values and post-process them using
   // the following lines:
   // const std::size_t number_of_rays = 25;  // cast 25 rays per facet

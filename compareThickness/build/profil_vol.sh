@@ -1,7 +1,7 @@
 #!/bin/bash
 
 OFFNAME=$1
-off2vol.sh $OFFNAME $2
+~/Documents/off2vol.sh $OFFNAME $2
 VOLNAME=${OFFNAME%%.off}-$2.vol
 FILENAME=${OFFNAME%%.off}-$2-data.txt
 

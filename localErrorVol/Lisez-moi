@@ -1,7 +1,51 @@
-Be careful !!
+*---------------------------------*
+| Build noised meshes and compare |
+*---------------------------------*
 
-This projet uses several tools( sedt, rdma, binvox ... ) or librairies which have to be installed
-on your computer.
+Note : Sorry if you find language faults in this document, the author hasn't got a perfect english.
 
-A more precise Readme will come nearly.
+Usage :
+--------
 
+In this programm, you can create noised meshes with 3 types of noises :
+- A gaussian noise for each coordinate ( "Cubic noise"  );
+- A gaussian noise for each coordinate but filtered to stay in a sphere ( "Spheric noise" ) ;
+- A gaussian noise along the local normal for each vertex ( "Normal noise" ).
+They are stored in .OFF files. You can choose the type of noise and also the different magnitudes of noise ( for this one, 
+you have to change them in the .CPP file ) ;
+
+The programm also computes the local error on the thickness got by the Shape Diameter Function ( SDF ) and the global 
+error, and stores these datas in .TXT files. It generates gnuplot scripts to plot them into a PDF file.
+
+Needed 
+-------
+
+- cmake
+- CGAL
+
+
+How to compile
+---------------
+
+in the localErrorSDF repository :
+
+$ cd build
+$ cmake ..
+$ cmake ..    ( 2 times to include -std=gnu++0x ...)
+$ make
+
+How to use the programm
+------------------------
+
+in the build repository :
+
+$ ./localErrorSDF path/to/the/mesh.off option 
+
+where option =
+  1 for the "Cubic noise"
+  2 for the "Spheric noise"
+  3 for the "Normal noise"
+
+example : to get a normal noise on a mesh ( path : ~/Documents/my_mesh.off ) :
+
+./localErrorSDF ~/Documents/my_mesh.off 3

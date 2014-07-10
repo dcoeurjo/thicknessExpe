@@ -1,0 +1,12 @@
+Objectif
+---------
+
+Ce script calcule l'erreur globale à partir des erreurs locales. En clair, il fait une 
+moyenne ...
+
+Utilisation 
+-----------
+
+./globalError path/to/the/data.txt
+
+

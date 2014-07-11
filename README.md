@@ -5,7 +5,7 @@ Travail effectué dans le cadre d'un stage de L3.
 
 Intitulé du stage : Fonctions d'épaisseur pour l'analyse géométrique de formes.
 
-Contenu du dépôt : Différents outils pour étudier des fonctions d'épaisseur, ainsi que quelques courbes obtenues.
+Contenu du dépôt : Différents tests, pour étudier des fonctions d'épaisseur, ainsi que quelques courbes obtenues et des outils plus généraux ( et plus pratique pour être réutilisés... )
 
 Des Readme ( ou Lisez-moi selon l'humeur ) dans chaque dossier montrent comment se servir des outils ( compilation, prérequis, execution ).
 
@@ -20,7 +20,7 @@ Celles-ci sont rappelées dans les Readme, mais il se peut que des oublis soient
 Pour tout renseignement ou commentaire ( erreur, imprécision... ) : william.aufort@ens-lyon.fr
 
 
-Descriptif sommaire des outils
+Descriptif sommaire des tests
 ==============================
 
 compareNoises : Comparer l'erreur locale causee sur un surface avec différents types de bruits sur les valuers d'épaisseur surfacique (SDF)
@@ -34,6 +34,8 @@ GlobalError : Calcul de l'erreur globale ( moyenne des erreurs locales )
 localErrorSDF : Comparer les profils d'erreurs locales obtenus avec différentes amplitudes de bruits, méthode surfacique
 
 localErrorVol : Idem, mais pour la méthode volumique
+
+Ordonnancement : Plutôt orient
 
 repartition : Calculer la répartition des rayons à partir des valeurs ( = créer des histogrammes )
 

@@ -86,7 +86,7 @@ public:
 std::string intToString(int number);
 std::string doubleToString(double number);
 int stringToInt ( const std::string &s );
-int stringToDouble ( const std::string &s );
+double stringToDouble ( const std::string &s );
 
 /**************\
 | Sphere tools |

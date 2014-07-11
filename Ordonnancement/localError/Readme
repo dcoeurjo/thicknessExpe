@@ -1,0 +1,24 @@
+*----------------------------------*
+| Compute the local for SDF values |
+*----------------------------------*
+
+BE CAREFUL : Only for SDF VALUES
+Remember that when we create noise, we keep the correspondance between the vertex of the mesh
+and those of the noised mesh, but not between the voxels of the object and those of the voxelized
+noised mesh.
+
+Inputs : 2 SDF values files
+-------
+
+Output : a .TXT file which contains the sorted local error values
+--------
+
+To compile  :
+-------------
+
+g++ -Wall localError.cpp -p localError
+
+To use :
+--------
+
+./localError path/to/the/first/values.txt path/to/the/second/values.txt

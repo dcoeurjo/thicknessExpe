@@ -1,0 +1,34 @@
+*------------------------------------*
+| Compute the thickness distribution |
+*------------------------------------*
+
+Inputs : 
+--------
+
+1) SDF values in two columns ( the values must be i the second, the first has no importance )
+2) the precision for the histogramm ( i.e the length of the subintervals, ex : 3 -> [0,max/3] [max/3, 2max/3], 
+and [2max/3,max] ). 
+
+Outputs : 
+---------
+
+1) The repartition in a .txt file containing 2 columns : values/frequency
+2) A gnuplot script to plot the rerpartition. 
+
+To compile  :
+-------------
+
+g++ -Wall distribution.cpp -o distribution
+
+To use :
+--------
+
+./distribution path/to/the/sdf/values.txt precision
+
+example :
+
+./distribution sdf_values.txt 100
+
+By experiment, 100 seems to be a good value for pretty distributions ;-)
+
+

@@ -31,6 +31,8 @@ int main ( int argc , char * argv[] ) {
   int precision = atoi(argv[2]) ;
   // Extract data
   std::vector<double> thick = extractDistribution(argv[1]) ; 
+  // sort the values
+  std::sort(thick.begin(),thick.end());
   // Compute the repartition
   std::vector<int> repartition = computeRepartition(thick,precision) ;
   std::string filename = argv[1] ;
@@ -49,6 +51,7 @@ int main ( int argc , char * argv[] ) {
   }
   // Compute Expectation and Variance
   std::pair<double,double> values = expectationAndVariance(repartition,precision,max) ;
+  // Print
   std::cout << "Expectation : " << values.first << ", variance : " << values.second << std::endl ;
   return 0 ;
 }

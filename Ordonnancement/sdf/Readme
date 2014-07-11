@@ -1,0 +1,22 @@
+*--------------------*
+| Compute SDF values |
+*--------------------*
+
+Input : A mesh ( OFF file )
+-------
+
+Output : normalized SDF-values ( in the same order as the face iterator )
+--------
+
+To compile  :
+-------------
+
+mkdir build
+cd build
+cmake ..
+make
+
+To use :
+--------
+
+./sdf path/to/th/object.off

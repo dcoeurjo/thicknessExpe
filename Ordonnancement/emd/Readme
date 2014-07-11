@@ -1,0 +1,22 @@
+*-----------------*
+| Compute the EMD |
+*-----------------*
+
+Inputs : the two normalized histogramms we want to compare
+--------
+
+Output : the EMD print in consol
+--------
+
+How to compile
+--------------
+
+g++ -Wall emd.cpp -o emd
+
+How to use the programm 
+-----------------------
+
+./emd path/to/the/first/data.txt path/to/the/second/data.txt
+
+
+

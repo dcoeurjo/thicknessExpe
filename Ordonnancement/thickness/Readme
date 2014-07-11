@@ -1,0 +1,46 @@
+*--------------------------*
+| Compute thickness values |
+*--------------------------*
+
+Inputs : 
+-------
+
+1) A mesh ( OFF file )
+2) A resolution ( for voxelization )
+3) An option describing who the thickness will be evaluated :
+  -v : for each voxel of the binary object
+  -d : by discretisation ( precise the step of the discretisation )
+  -mc : by Monte-Carlo method ( random points, precise the number. )
+Be careful ! With the last method, the number of points where the thickness will be evaluated
+depend on the input number and on the volume of the object. This number will be print in consol
+when the calculations stop.
+
+Output : normalized thickness values
+--------
+
+To compile  :
+-------------
+
+mkdir build
+cd build
+cmake ..
+cmake .. 
+make
+
+To use :
+--------
+
+For each voxel :
+./thickness path/to/the/object.off resolution -v 
+
+By discretisation :
+./thickness path/to/the/object.off resolution -d step
+
+By Monte-Carlo :
+./thickness path/to/the/object.off resolution -mc nbPts
+
+examples :
+
+./thickness ~/Documents/myObject1.off 250 -v
+./thickness ~/Documents/myObject2.off 100 -d 200
+./thickness ~/Documents/myObject1.off 300 -mc 4000000

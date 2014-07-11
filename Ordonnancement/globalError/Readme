@@ -1,0 +1,20 @@
+*--------------*
+| Global Error |
+*--------------*
+
+Input : A TXT file containing local errors.
+-------
+
+Output : the global error, in stdout
+--------
+
+To compile  :
+-------------
+
+g++ -Wall globalError.cpp -o globalError
+
+To use :
+--------
+
+./globalError path/to/the/localError.txt 
+

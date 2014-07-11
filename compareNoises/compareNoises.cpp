@@ -12,10 +12,10 @@
 #include <CGAL/property_map.h>
 
 /*-----------------------------------------------------------*\
-|  Compare the distribution of the local error for different  |
+|  Compare distributions of the local error for different     |
 |  types of noises : in a cube, a sphere, or along the        |
-|  normal                                                     |
-\*-----------------------------------------------------------*/
+|                          normal                             |
+*------------------------------------------------------------*/
 
 typedef CGAL::Exact_predicates_inexact_constructions_kernel    Kernel;
 typedef CGAL::Polyhedron_3<Kernel>                             Polyhedron;
@@ -40,6 +40,7 @@ int main ( int argc, char * argv[] ) {
     // argv[1] = filename ( .off )
     // argv[2] = magnitude of the noise
 
+    // Compute SDF reference values
     std::vector<float> sdfValues = sdf_values(( const char *)argv[1]) ; 
     std::vector<std::string> fileNames(4) ; 
     std::string fileName = argv[1] ; 
@@ -54,6 +55,7 @@ int main ( int argc, char * argv[] ) {
             return -1 ;
         }
         else {  
+                // Compute noised SDF values
                 std::vector<float> sdfNoisedValues = sdf_values(fileNames[option].c_str()) ;
                 int size = sdfValues.size() ;
                 std::vector<float> localError(size,0.0) ;
@@ -65,7 +67,7 @@ int main ( int argc, char * argv[] ) {
                     return -1 ;
                 }
                 else {
-                     // Calculations
+                     // Compute the local Error
                      int j = 0 ;
                      for(j=0;j<size;j++) {
                          localError[j] = error(sdfValues[j],sdfNoisedValues[j]);
@@ -91,7 +93,6 @@ int main ( int argc, char * argv[] ) {
          // Init file header
          scriptFile << "reset " << std::endl ;
          scriptFile << std::endl ;
-         // If you want/don't want to save the curves, uncomment/comment these two lines :
          scriptFile << "set term pdfcairo" << std::endl ;
          scriptFile << "set output \"" << argv[1] << "-compare.pdf\"" << std::endl ;
          scriptFile << "set title \" Distribution of the local error \" " << std::endl ;
@@ -177,7 +178,7 @@ int createNoiseOff ( char * fileName, const char * outputName, int option, doubl
     std::normal_distribution<double> distribution(0.0,s);
     // apply different noises 
     switch ( option ) {
-        case 1 : {       // in a cube
+        case 1 : {      
             Vertex_iterator v = mesh.vertices_begin() ;
             do {
                 double x = distribution(generator);
@@ -188,7 +189,7 @@ int createNoiseOff ( char * fileName, const char * outputName, int option, doubl
                 } while ( v++ != mesh.vertices_end()) ;
         break ;
         }
-        case 2 : {         // in a sphere
+        case 2 : {      // in a sphere
             Vertex_iterator v = mesh.vertices_begin() ;
             do {
                 bool inSphere = false ;
@@ -206,7 +207,7 @@ int createNoiseOff ( char * fileName, const char * outputName, int option, doubl
                 } while ( v++ != mesh.vertices_end()) ;
         break ;
         }
-        case 3 : {         // along the normal
+        case 3 : {     // along the normal
             Vertex_iterator v = mesh.vertices_begin() ;
             do {
                 HV_circulator h = v->vertex_begin() ;
@@ -259,6 +260,7 @@ std::vector<double> findBoxBorder ( Polyhedron P ) {
     borders[3] = v->point().y() ;
     borders[4] = v->point().z() ;
     borders[5] = v->point().z() ;
+  // find the borders
   do {
       double x = v->point().x() ;
       double y = v->point().y() ;

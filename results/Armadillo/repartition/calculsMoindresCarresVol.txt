@@ -1,0 +1,14 @@
+3.912023005  7.001364012
+4.605170186 6.435732012
+5.010635294 5.928335699
+5.298317367 5.574277253
+5.521460918 5.281613633 
+
+ln(EMD) en fonction de ln(resol) --> droite...
+
+Moindres carrés --> a = -1.073975874
+                 et b = 11.27401297
+
+-> EMD = exp(b)* resol^(a) (c'est cette courbe représentée sur le graphe ) 
+
+pratiquement cste/resol. ( a voisin de -1 )

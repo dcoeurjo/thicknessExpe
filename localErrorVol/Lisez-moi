@@ -29,7 +29,7 @@ Needed
 How to compile
 ---------------
 
-in the localErrorSDF repository :
+in the localErrorSDF directory :
 
 $ cd build
 $ cmake ..
@@ -39,7 +39,7 @@ $ make
 How to use the programm
 ------------------------
 
-in the build repository :
+in the build directory :
 
 $ ./localErrorSDF path/to/the/mesh.off path/to/the/ option 
 
@@ -51,7 +51,7 @@ where option is :
 and resolution is the resolution of the voxelized images creates in the programm.
 
 example : to compare the local error with a normal noise on a mesh ( path : ~/Documents/
-my_mesh.off ) with the magnitudes in magnitudes.txt ( in localErrorVol repository ), with
+my_mesh.off ) with the magnitudes in magnitudes.txt ( in localErrorVol directory ), with
 a resolution 150x150x150 :
 
 ./localErrorSDF ~/Documents/my_mesh.off ../magnitudes.txt 3 150

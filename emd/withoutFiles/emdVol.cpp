@@ -18,6 +18,8 @@
 
 #include "spheresTools.h"
 
+// Other prototypes
+
 std::vector<double> computeRepartition(std::vector<double>& thick, int precision, double max );
 double computeEMD(std::vector<double> d1, std::vector<double> d2);
 void createScript( std::string& offName, std::string& fileResults );
@@ -64,7 +66,6 @@ int main ( int argc, char * argv[] ) {
     createScript(offName,fileResults) ;
 
     int resolution = atoi(argv[4]) ;
-    // main loop //
     unsigned int i ;
     for ( i = 0 ; i < magnitudes.size() ; i++ ) {
         // build the off noised mesh
@@ -90,14 +91,13 @@ int main ( int argc, char * argv[] ) {
             std::cout << " Error in creating file " << fileResults << std::endl;
             return -1 ;
         } 
-        // Find non zero values
 
         int j = 0 ;
         int size = resolution * resolution * resolution ;
         std::vector<double> realValues ;
         std::vector<double> realValuesNoised ;
         for(j=0;j<size;j++) {
-             // We consider the points which belong to the two meshes
+             // We only consider the points which belong to the two meshes
              if ((thickWithoutNoise[j] != 0) && (thickWithNoise[j] != 0)) {
                  realValues.push_back(thickWithoutNoise[j]) ;
                  realValuesNoised.push_back(thickWithNoise[j]) ;

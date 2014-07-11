@@ -16,7 +16,6 @@ typedef CGAL::Polyhedron_3<Kernel> Polyhedron;
 typedef Polyhedron::Vertex_iterator Vertex_iterator;
  
 std::vector<int> findResolutions ( char * resolutionFile ) ;
-void swap ( float * tab, int j ) ;
 void afficheAide( void );
 double findBoxDimension ( Polyhedron P );
 
@@ -29,13 +28,14 @@ int main ( int argc, char * argv[] ) {
         std::cerr << " Not the good number of arguments " << std::endl ;
         return -1 ;
     }
+    std::string fileName= argv[1] ;
+
+    // Create gnuplot scripr
     std::ofstream scriptFile("script.p",std::ios::out) ;
     if ( !scriptFile ) {
         std::cerr << "Open script file error" << std::endl ;
         return -1 ;
     }  
-    std::string fileName= argv[1] ;
-    // Init file header
     scriptFile << "reset " << std::endl ;
     scriptFile << std::endl ;
     // If you want/don't want to save the curves, uncomment/comment these two lines :
@@ -60,8 +60,7 @@ int main ( int argc, char * argv[] ) {
   if ( !input || !(input >> mesh) || mesh.empty() ) {
     std::cerr << "Not a valid .off file." << std::endl;
     return -1;
-  }
-  
+  }  
   // create a property-map
 
   typedef std::map<Polyhedron::Facet_const_handle, double> Facet_double_map;
@@ -80,20 +79,16 @@ int main ( int argc, char * argv[] ) {
   double factor = findBoxDimension(mesh) ;
   for(Polyhedron::Facet_const_iterator facet_it = mesh.facets_begin();
       facet_it != mesh.facets_end(); ++facet_it) {
+      // Normalize ( real values normalized by the size of the bounding box )
       values[j] = ((min_max_sdf.second - min_max_sdf.first) * sdf_property_map[facet_it] + min_max_sdf.first) / (2*factor) ;
       j++;
   }
   // sort the SDF values
   sort(values.begin(),values.end());
   // Write in files
-
-
-
   std::string fileResults = fileName.substr(0,fileName.size()-4)+"-sdf.txt";
   std::ofstream fichier(fileResults.c_str(), std::ios::out);
   if( fichier ){ 
-      fichier << "number_points SDF" << std::endl ; // entete 
-      fichier << "0 0" << std::endl ;
       for(j=0;j<size;j++) {
           fichier << ((double) (j+1)) / ((double) size) * 100 << " " << values[j] << std::endl ;
       }
@@ -114,14 +109,12 @@ int main ( int argc, char * argv[] ) {
         return -1 ;
     }
 
-    
     // Calculations
     unsigned int i ;
     for (i=0; i<taille; i++) {
         std::ostringstream oss;  
         oss << resolutions[i+1] ;
         std::string resol = oss.str();
-        // Do the calculations
         std::string systemCall = "bash profil_vol.sh "+fileName+" "+resol;
         int s = system(systemCall.c_str()) ;
         if ( s != 0 ) {
@@ -132,16 +125,15 @@ int main ( int argc, char * argv[] ) {
         scriptFile << "\""+fileName.substr(0,fileName.size()-4)+"-"+resol+"-newdata.txt\" using 1:2 title \"resol-"+resol+"\", \\" << std::endl ;  
         std::cout << "ok" << std::endl ;        
     }
-
-  // plot 
-  scriptFile.close() ;
-  return 0;
+    scriptFile.close() ;
+    return 0;
 }
 
+/********************\
+| AUXILIAR FUNCTIONS |
+\********************/
 
-
-
- std::vector<int> findResolutions ( char * resolutionFile ) {
+std::vector<int> findResolutions ( char * resolutionFile ) {
   std::vector<int> resolutions(1,0) ; // first = size 
   std::ifstream file(resolutionFile,std::ios::in);
   if (!file) {
@@ -157,14 +149,6 @@ int main ( int argc, char * argv[] ) {
   }
   file.close() ;
   return resolutions ;
-  // TODO : Sort the arraw ? ( optional )
-}
-
-void swap ( float * tab, int j ) {
-  float tampon = tab[j] ;
-  tab[j] = tab[j-1] ;
-  tab[j-1] = tampon ;
-  return ;
 }
 
 void afficheAide( void ) {
@@ -209,11 +193,10 @@ double findBoxDimension ( Polyhedron P ) {
    return *std::max_element(values,values+3) ; 
 }
 
-
+  // Note //
   
-
   // It is possible to compute the raw SDF values and post-process them using
-  // the following lines:
+  // the following lines: ( instead of line 71 )
   // const std::size_t number_of_rays = 25;  // cast 25 rays per facet
   // const double cone_angle = 2.0 / 3.0 * CGAL_PI; // set cone opening-angle
   // CGAL::sdf_values(mesh, sdf_property_map, cone_angle, number_of_rays, false);

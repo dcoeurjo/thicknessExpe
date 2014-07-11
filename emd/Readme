@@ -31,11 +31,11 @@ Utilisation
 2) withoutFiles ( cas VOLUMIQUE uniquement )
 ---------------------------------------------
 
-Calcule l'Earth Mover Distance entre plusieurs couples d'histogramme de type :
+Calcule l'Earth Mover Distance entre plusieurs couples d'histogrammes de type :
 (non_bruité,bruité).
 On peut donner les différentes amplitudes de bruits, par contre on ne donne qu'une seule
 resolution pour les objets volumiques ( prendre en consideration plusieurs resolutions ne
-changerai pas beaucoup le code ... )
+changerai pas beaucoup le code cependant, mais ce n'etait pas l'objectif ici )
 
 Inputs : 
 - Une image sous format OFF
@@ -47,14 +47,21 @@ sphere de rayon le parametree sigma des gaussiennes )
   3 : normal ( gaussien selon la normale a chaque sommet )
 - une resolution d'image ( pour la voxelisation )
 
-Plus precisement, le programme construit les couples (objet non bruite, objet bruite) par ajout
-de bruit ( CGAL ) puis par voxelisation. Ensuite on calcule l'axe median pour obtenir les 
-boules maximales ( "off2spheres" entre autres ), enfin on calcule l'epaisseur a l'aide 
-d'une structure de boites. Enfin, on calcule les repartitions des epaisseurs calculees, puis 
-l'EMD, stockee dans un fichier de resultats ( format .TXT ).
+Output :
+- Toutes surfaces  generees en format OFF
+- Tous les fichiers de spheres et d'epaisseur
+- Mais surtout le fichier avec les valeurs d'EMD trouvees, ainsi que le script pour tracer ces
+valeurs.
 
-Necessite :
------------
+Plus precisement, le programme construit les couples (objet non bruite, objet bruite) par 
+ajout de bruit ( CGAL ) puis par voxelisation. Ensuite on calcule l'axe median pour obtenir 
+les boules maximales ( "off2spheres" entre autres ), enfin on calcule l'epaisseur ( a l'aide 
+d'une structure de boites ). Enfin, on calcule les repartitions des epaisseurs calculees, 
+puis l'EMD, stockee dans un fichier de resultats ( format .TXT ).
+
+
+Necessaire / Attention :
+------------------------
 
 - l'executable longvol2sphere ( l'executable se trouve dans longvol2sphere/build, le 
 dossier longvol2sphere contient le code )
@@ -76,7 +83,7 @@ Compilation
 
 $ cd build 
 $ cmake ..
-$ cmake .. # Necessaire pour voir les generateurs gaussiens... Pas de solution trouvee a ce jour ( shame on me )
+$ cmake .. # Necessaire pour les generateurs gaussiens... Pas de solution trouvee a ce jour ( shame on me )
 $ make
 
 Utilisation

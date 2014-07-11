@@ -11,6 +11,7 @@ Usage :
 This programm compares the thickness distributions computed by :
   - the Shape Diameter Function method (SDF) ;
   - a volumetric method, with chosen resolutions ( for the convertion of the mesh ).
+
 The result is saved in a gnuplot script you can run to create a PDF file, where you could
 find the differents curves plotted.
 
@@ -61,7 +62,7 @@ $ make
 Start the programm :
 --------------------
 
-in the build repository,
+in the build directory, 
 
 $./profils path/to/the/.off/object.off path/to/the/resolutions/file.txt
 

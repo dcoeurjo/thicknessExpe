@@ -1,8 +1,9 @@
-*---------------------------------*
-| Build noised meshes and compare |
-*---------------------------------*
+*---------------------------------------------------------------*
+| Build noised meshes and compare the local error on SDF values |
+*---------------------------------------------------------------*
 
-Note : Sorry if you find language faults in this document, the author hasn't got a perfect english.
+Note : Sorry if you find language faults in this document, the author hasn't got a perfect 
+english.
 
 Usage :
 --------
@@ -28,7 +29,7 @@ Needed
 How to compile
 ---------------
 
-in the localErrorSDF repository :
+in the localErrorSDF directory
 
 $ cd build
 $ cmake ..
@@ -38,7 +39,7 @@ $ make
 How to use the programm
 ------------------------
 
-in the build repository :
+in the build directory :
 
 $ ./localErrorSDF path/to/the/mesh.off path/to/the/magnitudes.txt option 
 
@@ -48,6 +49,6 @@ where possible options are :
   3 for the "Normal noise"
 
 example : to get a normal noise on a mesh ( path : ~/Documents/my_mesh.off ) with the 
-magnitudes in the build repository :
+magnitudes in the build directory :
 
 ./localErrorSDF ~/Documents/my_mesh.off magnitudes_example.txt 3

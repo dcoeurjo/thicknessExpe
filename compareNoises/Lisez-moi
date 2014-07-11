@@ -8,7 +8,7 @@ Usage :
 This program computes the distributions of the local error in the SDF values, for a mesh 
 in OFF file, with a given resolution, for 3 different types of noise :
 - A gaussian noise in a cube ( x, y and z are gaussians )
-- A gaussian noise in a sphere ( x, y and z are gaussians to, but we assert : x²+y²+z² <= r )
+- A gaussian noise in a sphere ( x, y and z are gaussians to, but we check that x²+y²+z² <= r )
 - A gaussian noise along the local unit normal to the vertex.
 
 The resolution is defined as a percentage of the longest diagonal of the bounding box of the 

@@ -1,0 +1,10 @@
+Vous trouverez ici certains resultats que j'ai obtenu, dont certains vont me servir dans mon
+rapport de stage. Il y a essentiellement des courbes et quelques images.
+
+Je me suis surtout interesse aux objets Knot ( forme simple, epaisseur attendue ) et Armadillo 
+( objet plus complexe, plus interessant en terme d'applications ).
+
+Autres objets :
+- Sphere : Idem que Knot, mais encore plus simple. Seulement des tests sur la repartition et 
+l'epaisseur ont ete effectues ;
+- Al : Que des fichiers volumiques a disposition. Seulement observation de profils d'epaisseur.

@@ -49,6 +49,7 @@ int main ( int argc, char * argv[] ) {
     std::vector<double> magnitudes = getMagnitudes(argv[2]) ;
     // init script
     std::string offName = argv[1] ; 
+    // Create Script
     std::string scriptName = offName.substr(0,offName.size()-4)+"-script.p" ;
     std::ofstream scriptFile(scriptName.c_str(),std::ios::out) ;
     if ( !scriptFile ) {

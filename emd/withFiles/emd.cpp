@@ -6,13 +6,12 @@
 #include <utility>
 #include <algorithm>
 
-/*
-  1) read sdf values
-  2) compute EMD 
-  3) return value
-*/
 
-// Input : the 2 sdf files and the precision of the histogramm
+/*************\
+| COMPUTE EMD |
+\*************/
+
+// Prototypes
 
 double stringToDouble ( std::string word );
 std::vector<double> readSdfValues( char * filename );
@@ -24,12 +23,16 @@ int main ( int argc , char * argv[] ) {
   // argv[2] = second sdf values
   // argv[3] = precision pour repartition rayons
   int precision = atoi(argv[3]) ;
+  // Load sdf values
   std::vector<double> sdf1 = readSdfValues(argv[1]) ;
   std::vector<double> sdf2 = readSdfValues(argv[2]) ;
+  // Compute the repartition wrt the maximal value in the two histogramms
   double max = std::max(sdf1[sdf1.size()-1],sdf2[sdf2.size()-1]) ;
   std::vector<double> d1 = computeRepartition(sdf1,precision,max) ;
   std::vector<double> d2 = computeRepartition(sdf2,precision,max) ;
+  // Compute the EMD
   double emd = computeEMD(d1,d2) ;
+  // Return it
   std::cout << "EMD = " << emd << std::endl ; 
   return 0 ;
 }
@@ -47,7 +50,7 @@ std::vector<double> readSdfValues( char * filename ) {
       return values ; // empty 
   }
   std::string word ;
-  int isData = 0 ;
+  int isData = 0 ; // Read only the second column
   while(input >> word) {
       if (isData) {
           values.push_back(stringToDouble(word)) ;
@@ -90,7 +93,6 @@ double computeEMD(std::vector<double> d1, std::vector<double> d2) {
   }
   double emd = 0.0 ;
   for ( i = 0 ; i < size + 1 ; i++ ) {
-      // std::cout << std::abs(EMDi[i]) << " " ;
       emd += std::abs(EMDi[i]) ;
   }
   return emd ;

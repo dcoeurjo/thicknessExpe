@@ -2,16 +2,21 @@
 |  Compare thickness computation's methods |
 *------------------------------------------*
 
-Note : Sorry if you find language faults in this document, the author hasn't got a perfect english.
+Note : Sorry if you find language faults in this document, the author hasn't got a perfect 
+english.
 
 Usage :
 -------
 
 This programm compares the thickness distributions computed by :
-  - the Shape Diameter Function method ;
+  - the Shape Diameter Function method (SDF) ;
   - a volumetric method, with chosen resolutions ( for the convertion of the mesh ).
-The result is saved in a gnuplot script and also a pdf file, where there are the differents
-curves plotted.
+The result is saved in a gnuplot script you can run to create a PDF file, where you could
+find the differents curves plotted.
+
+More precisely, the programm uses CGAL tools to compute the SDF values, Binvox to voxelize
+the mesh with the different resolutions, and MAEVA tools to compute the volumic thickness using
+medial axis.
 
 
 Needed :
@@ -31,7 +36,8 @@ How to compile :
 Be careful
 ----------
 
-In off2vol.sh, my path for raw2vol is : ~/Documents/logiciels/DGtalTools/build/converters/raw2vol
+In off2vol.sh, my path for raw2vol is : ~/Documents/logiciels/DGtalTools/build/converters/
+raw2vol
 
 Change this path by yours ( the part after DGtalTools must be the same as mine )
 

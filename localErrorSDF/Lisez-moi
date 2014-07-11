@@ -11,11 +11,12 @@ In this programm, you can create noised meshes with 3 types of noises :
 - A gaussian noise for each coordinate ( "Cubic noise"  );
 - A gaussian noise for each coordinate but filtered to stay in a sphere ( "Spheric noise" ) ;
 - A gaussian noise along the local normal for each vertex ( "Normal noise" ).
-They are stored in .OFF files. You can choose the type of noise and the different magnitudes of noise ( for this one, 
-you have to change them in the .CPP file ) ;
+They are stored in .OFF files. You can choose the type of noise and the different magnitudes 
+of noise ( they mush have to be stored in a .TXT file )
 
-The programm also computes the local error on the thickness got by the Shape Diameter Function ( SDF ) and the global 
-error, and stores these datas in .TXT files. It generates gnuplot scripts to plot them into a PDF file.
+The programm also computes the local error on the thickness got by the Shape Diameter Function 
+( SDF ) for each face, and also the global error. These values are written in .TXT files.
+The programm generates gnuplot scripts to plot them into a PDF file.
 
 Needed 
 -------
@@ -39,13 +40,14 @@ How to use the programm
 
 in the build repository :
 
-$ ./localErrorSDF path/to/the/mesh.off option 
+$ ./localErrorSDF path/to/the/mesh.off path/to/the/magnitudes.txt option 
 
-where option =
+where possible options are :
   1 for the "Cubic noise"
   2 for the "Spheric noise"
   3 for the "Normal noise"
 
-example : to get a normal noise on a mesh ( path : ~/Documents/my_mesh.off ) :
+example : to get a normal noise on a mesh ( path : ~/Documents/my_mesh.off ) with the 
+magnitudes in the build repository :
 
-./localErrorSDF ~/Documents/my_mesh.off 3
+./localErrorSDF ~/Documents/my_mesh.off magnitudes_example.txt 3

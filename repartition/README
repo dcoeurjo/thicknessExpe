@@ -1,13 +1,16 @@
 INPUT
 -----
 
-The thickness cumulative distribution saved in a .txt file 
+- The thickness cumulative distribution saved in a .txt file 
+- The precision you want to have in your histogramm ( precision p creates interval : [0,p],  
+[p,2p], ...  [max(1-1/p),max] = considering p intervals in [0,max] )
 
 OUTPUT 
 ------
 
 - The thickness repartition saved in a .txt file ;
 - A gnuplot script to plot the repartition as an histogramm.
+- The values of expectation and variance of the data. They are displayed on the consol.
 
 TO COMPILE
 ----------
@@ -21,5 +24,5 @@ TO USE THE PROGRAMM
 
 ./repartition path/to/my/distribution.txt
 
-example : ./repartition ~/Documents/my_repartition.txt
+example : ./repartition ~/Documents/my_repartition.txt 100 ( 100 intervals )
 

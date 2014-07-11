@@ -9,4 +9,7 @@ Utilisation
 
 ./globalError path/to/the/data.txt
 
+Compilation ( juste pour rire )
+------------
 
+g++ -Wall globalError.cpp -o globalError

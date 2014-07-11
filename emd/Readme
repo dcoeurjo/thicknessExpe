@@ -5,16 +5,16 @@
 1) withFiles 
 -------------
 
-Calcule l'Earth Mover Distance entre deux histogrammes a une dimension.
-Avec la condition de normalisation habituelle : les deux histogrammes doivent avoir le 
-meme effectif totaln mais egalement la meme 'precision' ( les memes intervalles de valeurs
-consideres : ex [0,1] [1,2] et [2,3] )
+Calcule l'Earth Mover Distance (EMD) entre deux histogrammes a une dimension.
+Conditions de normalisation : les deux histogrammes doivent avoir le meme effectif total, mais
+egalement la meme 'precision' ( les memes intervalles de valeurs consideres : ex [0,1] [1,2] 
+et [2,3] ) 
 
-Remarque : C'est le cas avec les calculs d'epaisseur.
+Remarque : C'est le cas avec les calculs d'epaisseur normalises.
 
 Inputs : les deux histogrammes sous la forme d'un fichier.txt
 
-Output ; 
+Output : l'EMD entre les deux histogrammes.
 
 Compilation 
 -----------
@@ -31,7 +31,7 @@ Utilisation
 2) withoutFiles ( cas VOLUMIQUE uniquement )
 ---------------------------------------------
 
-Calcul l'Earth Mover Distance entre plusieurs couples d'histogramme de type :
+Calcule l'Earth Mover Distance entre plusieurs couples d'histogramme de type :
 (non_bruité,bruité).
 On peut donner les différentes amplitudes de bruits, par contre on ne donne qu'une seule
 resolution pour les objets volumiques ( prendre en consideration plusieurs resolutions ne
@@ -46,6 +46,12 @@ Inputs :
 sphere de rayon le parametree sigma des gaussiennes )
   3 : normal ( gaussien selon la normale a chaque sommet )
 - une resolution d'image ( pour la voxelisation )
+
+Plus precisement, le programme construit les couples (objet non bruite, objet bruite) par ajout
+de bruit ( CGAL ) puis par voxelisation. Ensuite on calcule l'axe median pour obtenir les 
+boules maximales ( "off2spheres" entre autres ), enfin on calcule l'epaisseur a l'aide 
+d'une structure de boites. Enfin, on calcule les repartitions des epaisseurs calculees, puis 
+l'EMD, stockee dans un fichier de resultats ( format .TXT ).
 
 Necessite :
 -----------
@@ -63,12 +69,14 @@ Idem, changer le chemin dans "off2spheres"
 
 - MAEVA Toolkit ( http://liris.cnrs.fr/david.coeurjolly/code/maeva.html )
 
+- CGAL.
+
 Compilation 
 -----------
 
 $ cd build 
 $ cmake ..
-$ cmake .. # Necessaire pour voir les generateurs gaussiens... Pas de solution trouvee a ce jour ( honte a moi )
+$ cmake .. # Necessaire pour voir les generateurs gaussiens... Pas de solution trouvee a ce jour ( shame on me )
 $ make
 
 Utilisation
@@ -79,8 +87,8 @@ Dans le repertoire build :
 ./emdVol path/to/my/object.off path/to/magnitudes.txt option resolution
 
 Exemple : Pour un bruit cubique, une resolution 250x250x250, avec les magnitudes donnees
-en exemple, et un objet dans Documents : 
+en exemple, et un objet situe dans "Documents" : 
 
-./emdVol ~/Documents/myObject.off ../magnitudes_example.txt
+./emdVol ~/Documents/myObject.off ../magnitudes_example.txt 1 250
 
 

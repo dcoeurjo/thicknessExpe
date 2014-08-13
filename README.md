@@ -35,7 +35,7 @@ localErrorSDF : Comparer les profils d'erreurs locales obtenus avec différentes
 
 localErrorVol : Idem, mais pour la méthode volumique
 
-Ordonnancement : Plutôt orient
+Ordonnancement : Contient des outils plus élémentaires qui ont servis dans les différents programmes. 
 
 repartition : Calculer la répartition des rayons à partir des valeurs ( = créer des histogrammes )
 

@@ -16,6 +16,11 @@ Be careful ! With the last method, the number of points where the thickness will
 depend on the input number and on the volume of the object. This number will be print in consol
 when the calculations stop.
 
+
+thicknessFromSpheres: just load a set of spheres
+
+
+
 Output : normalized thickness values
 --------
 

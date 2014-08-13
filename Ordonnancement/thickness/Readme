@@ -7,10 +7,11 @@ Inputs :
 
 1) A mesh ( OFF file )
 2) A resolution ( for voxelization )
-3) An option describing who the thickness will be evaluated :
+3) An option describing where the thickness will be evaluated :
   -v : for each voxel of the binary object
   -d : by discretisation ( precise the step of the discretisation )
   -mc : by Monte-Carlo method ( random points, precise the number. )
+
 Be careful ! With the last method, the number of points where the thickness will be evaluated
 depend on the input number and on the volume of the object. This number will be print in consol
 when the calculations stop.

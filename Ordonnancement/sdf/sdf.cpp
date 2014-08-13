@@ -49,18 +49,25 @@ int main ( int argc, char * argv[]) {
 
   // compute SDF values
 
+  // const std::size_t number_of_rays = 25;  // cast 25 rays per facet
+  // const double cone_angle = 2.0 / 3.0 * CGAL_PI; // set cone opening-angle
+  // CGAL::sdf_values(mesh, sdf_property_map, cone_angle, number_of_rays, false);
+  // std::pair<double, double> min_max_sdf =
+  //  CGAL::sdf_values_postprocessing(mesh, sdf_property_map);
+
   std::pair<double, double> min_max_sdf = CGAL::sdf_values(mesh, sdf_property_map);
+
 
   // put SDF values in an array
 
   int size = mesh.size_of_facets() ;
-  std::vector<float> values(size) ;
+  std::vector<double> values(size) ;
   int j = 0 ;
   double factor = findBoxDimension(mesh) ;
   for(Polyhedron::Facet_const_iterator facet_it = mesh.facets_begin();
       facet_it != mesh.facets_end(); ++facet_it) {
       // Normalize ( real values normalized by the size of the bounding box )
-      values[j] = ((min_max_sdf.second - min_max_sdf.first) * sdf_property_map[facet_it] + min_max_sdf.first) / (2*factor) ;
+      values[j] = ((min_max_sdf.second - min_max_sdf.first) * sdf_property_map[facet_it] + min_max_sdf.first) / (2.0*factor) ;
       j++;
   }
   // Write in files

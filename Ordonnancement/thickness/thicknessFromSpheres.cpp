@@ -182,7 +182,7 @@ double stringToDouble ( const std::string &s ) {
 }
 
 // Read Spheres from a .TXT file
-
+// "x y z radius" 
 Spheres readSpheres ( std::string& filename ) {
   Spheres spheres ;
   std::ifstream input(filename.c_str()) ;

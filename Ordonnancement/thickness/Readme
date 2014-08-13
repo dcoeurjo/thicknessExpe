@@ -20,18 +20,8 @@ when the calculations stop.
 thicknessFromSpheres: just load a set of spheres
 
 
-
-Output : normalized thickness values
---------
-
-To compile  :
--------------
-
-mkdir build
-cd build
-cmake ..
-cmake .. 
-make
+Output : normalized thickness values (radius / resolution)
+--------  
 
 To use :
 --------

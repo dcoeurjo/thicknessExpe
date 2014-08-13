@@ -5,13 +5,8 @@
 Inputs : the two normalized histogramms we want to compare
 --------
 
-Output : the EMD print in consol
+Output : the EMD printed in console
 --------
-
-How to compile
---------------
-
-g++ -Wall emd.cpp -o emd
 
 How to use the programm 
 -----------------------

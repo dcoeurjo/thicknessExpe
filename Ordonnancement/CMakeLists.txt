@@ -27,6 +27,27 @@ else()
   MESSAGE(FATAL "CGAL required")
 endif()
 
+
+
+FIND_PACKAGE(DGtal 0.5 REQUIRED)
+INCLUDE_DIRECTORIES(${DGTAL_INCLUDE_DIRS})
+LINK_DIRECTORIES(${DGTAL_LIBRARY_DIRS})
+
+SET(Boost_USE_STATIC_LIBS   ON)
+SET(Boost_USE_MULTITHREADED ON)
+SET(Boost_USE_STATIC_RUNTIME OFF)
+SET(Boost_FOUND FALSE)
+FIND_PACKAGE(Boost 1.46.0 REQUIRED COMPONENTS program_options)
+if ( Boost_FOUND )
+  message(STATUS "Boost and boost_program_options found.")
+  include_directories( ${Boost_INCLUDE_DIRS} )
+  SET(DGtalToolsLibDependencies ${DGtalToolsLibDependencies}
+     ${Boost_LIBRAIRIES}
+     ${Boost_PROGRAM_OPTIONS_LIBRARY})
+   SET(DGtalLibInc ${Boost_INCLUDE_DIRS})
+endif( Boost_FOUND )
+
+
 add_subdirectory(bruitage)
 add_subdirectory(sdf)
 add_subdirectory(distribution)

@@ -5,15 +5,31 @@
 #include <fstream>
 #include <algorithm>
 
+#include <CGAL/Min_sphere_of_spheres_d.h>
+
+#include <CGAL/Cartesian_d.h>
+
+
+#include <CGAL/bounding_box.h>
 
 typedef CGAL::Exact_predicates_inexact_constructions_kernel            Kernel;
+
+
 typedef Kernel::Point_3                                                Point;
 typedef Kernel::Sphere_3                                               Sphere;
+
+
 typedef std::vector<Sphere>                                            Spheres;
 typedef Spheres::iterator                                              Iterator;   
 typedef CGAL::Box_intersection_d::Box_with_handle_d<double,3,Iterator> Box ;
 
+typedef Kernel::Iso_cuboid_3   BBox;
+
+
+//Set of probing points
 Spheres points ;
+
+//Points index -> maxRadius (0 if outside)
 std::vector<double> maxRadius ;
 
 // PROTOTYPES //
@@ -24,8 +40,39 @@ double stringToDouble ( const std::string &s );
 std::vector<Sphere> readSpheres ( std::string& fileName );
 bool belongsTo ( const Sphere& s1, const Sphere& s2 );
 int nonZeroValues( std::vector<double>& values ) ;	
-int writeThicknessInFile ( std::vector<double>& thick , std::string& fileName, int beginning, int resolution );
+int writeThicknessInFile ( std::vector<double>& thick , std::string& fileName, int beginning, BBox bbox );
 //double rayMaxBall ( const Point P, std::vector<Sphere>& spheres );
+
+
+
+
+BBox findBoundingBox (  Spheres & S )
+{
+  std::vector<Point> pts;
+  for(Iterator it = S.begin(), itend=S.end(); it!= itend; ++it)
+  {
+    Point center = it->center();
+    double rad = sqrt(it->squared_radius());
+    
+    std::cout<< "rad= "<< rad<<std::endl;
+    
+    pts.push_back(Point(center.x() , center.y(), center.z() + rad));
+    pts.push_back(Point(center.x() , center.y(), center.z() - rad));
+    pts.push_back(Point(center.x() +rad, center.y(), center.z() ));
+    pts.push_back(Point(center.x() -rad, center.y(), center.z() ));
+    pts.push_back(Point(center.x() , center.y()+rad, center.z() ));
+    pts.push_back(Point(center.x() , center.y()-rad, center.z() ));
+  }
+  
+  return CGAL::bounding_box(pts.begin(), pts.end());
+  
+}
+
+double widthFromBBox(BBox &bbox)
+{
+  double values[] = {(bbox.xmax() - bbox.xmin()), (bbox.ymax() - bbox.ymin()),(bbox.zmax() - bbox.zmin())};
+  return *std::max_element(values, values+3) / 2.0;
+}
 
 
 // A class for the "CGAL::box_intersection_d" call
@@ -35,46 +82,36 @@ public:
 
   // init points and maxRadius
 
-  Calcul(int resolution,int option,int thirdArgument) {
+  Calcul(BBox bbox,int option,int thirdArgument) {
     switch(option) {
-    case 0 : { // all voxels
-      double i, j, k ;
-      for ( k = 0 ; k < resolution ; k++ ) { 
-        for ( j = 0 ; j < resolution ; j++ ) {
-          for ( i = 0 ; i < resolution ; i++) {
-            points.push_back(Sphere(Point(i,j,k),0)) ;
-            maxRadius.push_back(0.0) ;
-          }
-        }
-      }
-      break ;
-    }
-    case 1 : { // by discretisation
-      // thirdArgument = step of the discretisation
+    case 0 :  { // regular
+      // thirdArgument = width of the discretisation
       srand(time(0)) ;
-      int i,j,k ;
-      for ( i = 0; i < thirdArgument; i++ ) {
-        for ( j = 0; j < thirdArgument; j++ ) {
-          for ( k = 0; k < thirdArgument; k++ ) {
-            double x = ((double) i)/((double) thirdArgument) * resolution ;
-            double y = ((double) j)/((double) thirdArgument) * resolution ;
-            double z = ((double) k)/((double) thirdArgument) * resolution ;
-            Point P(x,y,z) ;
-            points.push_back(Sphere(Point(x,y,z),0)) ;
+      double i,j,k ;
+      for ( i = bbox.xmin(); i < bbox.xmax();  )
+        for ( j = bbox.ymin(); j < bbox.ymax(); )
+          for ( k =  bbox.zmin(); k < bbox.zmax();  )
+          {
+            Point P(i,j,k) ;
+            points.push_back(Sphere(P,0)) ;
             maxRadius.push_back(0.0) ;
+            
+            i += (bbox.xmax() - bbox.xmin()) / (double) thirdArgument;
+            j += (bbox.ymax() - bbox.ymin()) / (double) thirdArgument;
+            k += (bbox.zmax() - bbox.zmin()) / (double) thirdArgument;
+            
           }
-        }
-      }
       break ;
     }     
-    case 2 : { // by Monte-Carlo
+    case 1 : { // by Monte-Carlo
       // thirdArgument = number of points
       srand(time(0)) ;
       int nb = 0 ;
-      while ( nb < thirdArgument ) {  
-        double x = ((double) rand()) /((double) RAND_MAX ) * resolution ;
-        double y = ((double) rand()) /((double) RAND_MAX ) * resolution ;
-        double z = ((double) rand()) /((double) RAND_MAX ) * resolution ;
+      while ( nb < thirdArgument )
+      {
+        double x = bbox.xmin() + ((double) rand()) /((double) RAND_MAX ) * (bbox.xmax() - bbox.xmin()) ;
+        double y = bbox.ymin() + ((double) rand()) /((double) RAND_MAX ) * (bbox.ymax() - bbox.ymin()) ;
+        double z = bbox.zmin() + ((double) rand()) /((double) RAND_MAX ) * (bbox.zmax() - bbox.zmin()) ;
         Point P(x,y,z) ;
         points.push_back(Sphere(Point(x,y,z),0)) ;
         maxRadius.push_back(0.0) ;
@@ -90,41 +127,62 @@ public:
 
   // update the radius values  
 
-  void operator()(const Box& a, const Box& b) {
+  void operator()(const Box& a, const Box& b)
+  {
     // b is a point
-    if ( belongsTo( *(a.handle()), *(b.handle())) 
-         && ((a.handle())->squared_radius() > maxRadius[b.handle()-points.begin()])) {
+    if ( belongsTo( *(a.handle()), *(b.handle()))
+         && ((a.handle())->squared_radius() > maxRadius[b.handle()-points.begin()]))
+    {
       maxRadius[b.handle()-points.begin()] = (a.handle())->squared_radius() ;
-    }
-  }
+     }
 
+  }
 };
 
+
+/*
+ * Read a set of spheres ("x y z radius") and estimate the thickness distribution using sampling (regular or uniform)
+ *
+ *  The output is a file (<input>-thick.txt) with
+ *
+ *   rank  thickness
+ *
+ * with rank [0:100] and thickness in [0:1]  (thickness normalized by the half-width of the bbox)
+ *
+ */
 
 int main( int argc, char * argv[] ) {
   /* 
      argv[1] = .dat file containing the balls
-     argv[2] = resolution for voxelisation
-     argv[3] = option for the choosen points ( only voxels, by discretisation or randomly ( Monte-Carlo )
-     argv[4] = number of points (Monte-Carlo) or the step ( Discretisation )
+     argv[2] = option for the choosen points ( only voxels, by discretisation or randomly ( Monte-Carlo )
+     argv[3] = number of points (Monte-Carlo) or the step ( Discretisation )
   */
   std::string filename = argv[1] ;
-  int resolution = atoi(argv[2]) ;
   // Extract option and third argument if it exists
-  int option = whatOption(argv[3]) ;
+  int option = whatOption(argv[2]) ;
   int thirdArgument = 0 ;
-  if ( argc == 5 ) {
-    thirdArgument = atoi(argv[4]) ;
+  if ( argc == 4 ) {
+    thirdArgument = atoi(argv[3]) ;
   }
-  if ( argc != 5 && argc != 4 ) {
+  if ( argc != 4 && argc != 3 ) {
     std::cerr << " Not the good number of arguments " << std::endl ;
     return -1 ;
   }
   
+  
+  
   //Loading the ball set
   Spheres spheres = readSpheres(filename);
+  
+  std::cout << "Number of spheres= "<< spheres.size()  <<std::endl;
+  std::cout << "Paramter (resolution or number of points)= "<< thirdArgument  <<std::endl;
+  
+  //Get bboxwith
+  BBox bbox = findBoundingBox( spheres );
+  std::cout << "BBox= "<<bbox  <<std::endl;
+  
   // Init points and radius
-  Calcul calc(resolution,option,thirdArgument) ; 
+  Calcul calc(bbox,option,thirdArgument) ;
   std::vector<Box> boxes, pointBoxes ;
   for ( Iterator i = spheres.begin(); i != spheres.end(); ++i ) {
     boxes.push_back( Box(i->bbox(),i)) ;
@@ -133,10 +191,12 @@ int main( int argc, char * argv[] ) {
     pointBoxes.push_back( Box(j->bbox(),j)) ;
   }
   CGAL::box_intersection_d( boxes.begin(), boxes.end(), pointBoxes.begin(), pointBoxes.end(), calc);
+  
   sort(maxRadius.begin(),maxRadius.end()) ;
-  int beginning = nonZeroValues(maxRadius) ;
+  
+  int firstNonZeroValue = nonZeroValues(maxRadius) ;
   std::string dataFileName = filename.substr(0,filename.size()-4)+"-thick.txt" ;
-  int w = writeThicknessInFile(maxRadius,dataFileName,beginning,resolution) ;
+  int w = writeThicknessInFile(maxRadius,dataFileName,firstNonZeroValue,bbox) ;
   if ( w != 0 ) {
     std::cout << " Open thickness file error" << std::endl ;
     return -1 ;
@@ -149,17 +209,14 @@ int main( int argc, char * argv[] ) {
 \************************/
 
 int whatOption(char * opt) {
-  // opt = -v or -c or -mc 
+  // opt = -r or -mc
   int option ;
   switch ( opt[1] ) {
-  case 'v' :
+  case 'r' :
     option = 0 ;
     break ;
-  case 'c' : 
-    option = 1 ;
-    break ;
   case 'm' :
-    option = 2 ;
+    option = 1 ;
     break ;
   default :
     option = -1 ;
@@ -234,20 +291,26 @@ int nonZeroValues( std::vector<double>& values ) {
    
 
 
-int writeThicknessInFile ( std::vector<double>& thick , std::string& fileName, int beginning, int resolution ) {
+int writeThicknessInFile ( std::vector<double>& thick , std::string& fileName, int firstNonZeroValue, BBox bbox )
+{
   std::ofstream thickFile(fileName.c_str(),std::ios::out) ;
   if ( !thickFile ) {
     return -1;
   }
   int i ;
-  int size = thick.size()-beginning ;
+  int size = thick.size()-firstNonZeroValue ;
   std::cout << "Number of points : " << size << std::endl ;
   double max = sqrt(thick[thick.size()-1]) ;
-  double min = sqrt(thick[beginning]) ;
+  double min = sqrt(thick[firstNonZeroValue]) ;
   std::cout << " Thickness min value : " << min << ", thickness max value : " << max << std::endl ;
-  for ( i = beginning ; i < thick.size() ; i++ ) {
-    double x = ((double) (i+1-beginning)) / ((double) size) * 100 ;
-    thickFile << x << " " << sqrt(thick[i]) / resolution  << std::endl ;
+  
+  
+  double width= widthFromBBox(bbox);
+  
+  for ( i = firstNonZeroValue ; i < thick.size() ; i++ )
+  {
+    double t = ((double) (i+1-firstNonZeroValue)) / ((double) size) * 100 ;
+    thickFile << t << " " << sqrt(thick[i]) / width  << std::endl ;
   }
   return 0 ;
 }

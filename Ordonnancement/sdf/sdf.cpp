@@ -49,13 +49,12 @@ int main ( int argc, char * argv[]) {
 
   // compute SDF values
 
-  // const std::size_t number_of_rays = 25;  // cast 25 rays per facet
-  // const double cone_angle = 2.0 / 3.0 * CGAL_PI; // set cone opening-angle
-  // CGAL::sdf_values(mesh, sdf_property_map, cone_angle, number_of_rays, false);
-  // std::pair<double, double> min_max_sdf =
-  //  CGAL::sdf_values_postprocessing(mesh, sdf_property_map);
+  const std::size_t number_of_rays = 25;  // cast 25 rays per facet
+  const double cone_angle = 2.0 / 3.0 * CGAL_PI; // set cone opening-angle
+  CGAL::sdf_values(mesh, sdf_property_map, cone_angle, number_of_rays, false);
+  std::pair<double, double> min_max_sdf = CGAL::sdf_values_postprocessing(mesh, sdf_property_map);
 
-  std::pair<double, double> min_max_sdf = CGAL::sdf_values(mesh, sdf_property_map);
+  //std::pair<double, double> min_max_sdf = CGAL::sdf_values(mesh, sdf_property_map);
 
 
   // put SDF values in an array
@@ -63,13 +62,23 @@ int main ( int argc, char * argv[]) {
   int size = mesh.size_of_facets() ;
   std::vector<double> values(size) ;
   int j = 0 ;
-  double factor = findBoxDimension(mesh) ;
+  double factor = findBoxDimension(mesh)  / 2.0;
   for(Polyhedron::Facet_const_iterator facet_it = mesh.facets_begin();
       facet_it != mesh.facets_end(); ++facet_it) {
       // Normalize ( real values normalized by the size of the bounding box )
       values[j] = ((min_max_sdf.second - min_max_sdf.first) * sdf_property_map[facet_it] + min_max_sdf.first) / (2.0*factor) ;
       j++;
   }
+  
+  //Sorting the sdf values
+  sort(values.begin(), values.end());
+  
+  std::cout << "Number of samples= "<< size<< std::endl;
+  std::cout << "Max sdf value= "<< values[size -1]<< std::endl;
+  std::cout << "Min sdf value= "<< values[0]<< std::endl;
+  std::cout << "Factor= "<< factor << std::endl;
+
+  
   // Write in files
   std::string fileResults = fileName.substr(0,fileName.size()-4)+"-sdf.txt";
   std::ofstream fichier(fileResults.c_str(), std::ios::out);
@@ -96,7 +105,8 @@ void afficheAide( void ) {
     std::cout << "Output: a gnuplot script and a pdf figure with the distributions." << std::endl ;
 }
 
-double findBoxDimension ( Polyhedron P ) {
+double findBoxDimension ( Polyhedron P )
+{
   Vertex_iterator v = P.vertices_begin() ;
   std::vector<double> borders(6) ;
     borders[0] = v->point().x() ;
@@ -129,7 +139,10 @@ double findBoxDimension ( Polyhedron P ) {
       }
   } while ( v++ != P.vertices_end() ) ;
    double values[] = {borders[1]-borders[0],borders[3]-borders[2],borders[5]-borders[4] } ;
-   return *std::max_element(values,values+3) ; 
+  std::cout<<"BBox = ("<<borders[0]<<" " <<borders[2]<<" "<<borders[4]<<") ("
+  <<borders[1]<<" " <<borders[3]<<" "<<borders[5]<<")"<<std::endl;
+  
+   return *std::max_element(values,values+3) ;
 }
 
   // Note //

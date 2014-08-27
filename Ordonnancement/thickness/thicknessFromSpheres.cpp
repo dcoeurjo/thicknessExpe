@@ -54,7 +54,7 @@ BBox findBoundingBox (  Spheres & S )
     Point center = it->center();
     double rad = sqrt(it->squared_radius());
     
-    std::cout<< "rad= "<< rad<<std::endl;
+    //std::cout<< "rad= "<< rad<<std::endl;
     
     pts.push_back(Point(center.x() , center.y(), center.z() + rad));
     pts.push_back(Point(center.x() , center.y(), center.z() - rad));
@@ -89,7 +89,11 @@ public:
       srand(time(0)) ;
       double i,j,k ;
       for ( i = bbox.xmin(); i < bbox.xmax();  )
+      {
+        
         for ( j = bbox.ymin(); j < bbox.ymax(); )
+        {
+          
           for ( k =  bbox.zmin(); k < bbox.zmax();  )
           {
             Point P(i,j,k) ;
@@ -97,10 +101,11 @@ public:
             maxRadius.push_back(0.0) ;
             
             i += (bbox.xmax() - bbox.xmin()) / (double) thirdArgument;
-            j += (bbox.ymax() - bbox.ymin()) / (double) thirdArgument;
-            k += (bbox.zmax() - bbox.zmin()) / (double) thirdArgument;
-            
           }
+          j += (bbox.ymax() - bbox.ymin()) / (double) thirdArgument;
+        }
+        k += (bbox.zmax() - bbox.zmin()) / (double) thirdArgument;
+        } 
       break ;
     }     
     case 1 : { // by Monte-Carlo
@@ -175,7 +180,7 @@ int main( int argc, char * argv[] ) {
   Spheres spheres = readSpheres(filename);
   
   std::cout << "Number of spheres= "<< spheres.size()  <<std::endl;
-  std::cout << "Paramter (resolution or number of points)= "<< thirdArgument  <<std::endl;
+  std::cout << "Parameter (resolution or number of points)= "<< thirdArgument  <<std::endl;
   
   //Get bboxwith
   BBox bbox = findBoundingBox( spheres );
@@ -302,10 +307,11 @@ int writeThicknessInFile ( std::vector<double>& thick , std::string& fileName, i
   std::cout << "Number of points : " << size << std::endl ;
   double max = sqrt(thick[thick.size()-1]) ;
   double min = sqrt(thick[firstNonZeroValue]) ;
-  std::cout << " Thickness min value : " << min << ", thickness max value : " << max << std::endl ;
-  
-  
   double width= widthFromBBox(bbox);
+
+  std::cout << " Thickness min value : " << min/width << ", thickness max value : " << max/width << std::endl ;
+  
+  
   
   for ( i = firstNonZeroValue ; i < thick.size() ; i++ )
   {

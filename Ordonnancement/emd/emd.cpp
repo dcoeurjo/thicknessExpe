@@ -67,13 +67,13 @@ std::vector<double> computeRepartition(std::vector<double>& thick, int precision
   int i = 0 ;
   int size = thick.size() ;
   for( i = 0 ; i < size; i++ ) {
-       int indice = (int) ( ceil( thick[i] / max * ((double) precision))) - 1 ;
+       int indice = (int) ( ceil( thick[i] / (double)max * ((double) precision))) - 1 ;
        repartition[std::max(indice,0)]++ ;
   } 
   std::cout << "Ok" << std:: endl ; 
   // Normalize
   for ( i = 0 ; i < precision ; i++ ) {
-      repartition[i] = repartition[i] / size * 100.0 ;
+      repartition[i] = repartition[i] / (double)size * 100.0 ;
   }
   return repartition ;
 }

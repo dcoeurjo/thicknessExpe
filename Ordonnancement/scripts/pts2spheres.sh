@@ -9,7 +9,7 @@ $CRUSTPATH/powercrust -m 100000 -i $1
 
 mv inpball $1:r-crust-spheres.txt
 
-rm   pole inpball pc.off axis.off axisface.off inpole outpole poleinfo
+rm   inpole outpole inpball pc.off axis.off axisface.off inpole outpole poleinfo
 
 echo "Number of balls= " `wc  -l $1:r-crust-spheres.txt`
 

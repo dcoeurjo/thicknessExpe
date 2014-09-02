@@ -3,14 +3,19 @@
 ## Read a PTS file and extract an approximation of the MA from power crust
 
 PTSNAME=$1
+ARITHM=$2
 CRUSTPATH=../crust/
 
-$CRUSTPATH/powercrust -m 100000 -i $1
+
+cp $PTSNAME tmp.pts
+
+$CRUSTPATH/powercrust -m $ARITHM -i tmp.pts
+echo "$CRUSTPATH/powercrust -m $ARITHM -i $PTSNAME"
 
 mv inpball $1:r-crust-spheres.txt
+mv axis.off $1:r-crust-spheres.off
 
-rm   inpole outpole inpball pc.off axis.off axisface.off inpole outpole poleinfo
+rm pc.off axis.off  inpole outpole poleinfo
 
 echo "Number of balls= " `wc  -l $1:r-crust-spheres.txt`
-
 

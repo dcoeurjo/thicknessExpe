@@ -33,13 +33,16 @@ int main ( int argc , char * argv[] ) {
   // Compute the EMD
   double emd = computeEMD(d1,d2) ;
   // Return it
-  std::cout << "EMD = " << emd << std::endl ; 
+  std::cout << "EMD = " << emd << std::endl ;
+  
+  std::cout << "normEMD = " << emd/(double)precision << std::endl ;
   return 0 ;
 }
 
 double stringToDouble ( std::string word ) {
     return atof(word.c_str()) ;
 }
+
 
 std::vector<double> readSdfValues( char * filename ) {
   std::vector<double> values ;
@@ -73,7 +76,7 @@ std::vector<double> computeRepartition(std::vector<double>& thick, int precision
   std::cout << "Ok" << std:: endl ; 
   // Normalize
   for ( i = 0 ; i < precision ; i++ ) {
-      repartition[i] = repartition[i] / (double)size * 100.0 ;
+      repartition[i] = repartition[i] / (double)size ;
   }
   return repartition ;
 }

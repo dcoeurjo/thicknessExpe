@@ -9,11 +9,12 @@
 #include <CGAL/IO/Polyhedron_iostream.h>
 #include <CGAL/mesh_segmentation.h>
 #include <CGAL/property_map.h>
+#include <CGAL/bounding_box.h>
 
 typedef CGAL::Exact_predicates_inexact_constructions_kernel Kernel;
 typedef CGAL::Polyhedron_3<Kernel> Polyhedron;
 typedef Polyhedron::Vertex_iterator Vertex_iterator;
-
+typedef Kernel::Point_3 Point;
 typedef std::map<Polyhedron::Facet_const_handle, double> Facet_double_map;
 
 // Prototypes
@@ -42,12 +43,15 @@ int main ( int argc, char * argv[]) {
     return -1;
   } 
  
+  std::cout << "SDF Off loaded"<<std::endl;
+  
   // create a property-map
 
   Facet_double_map internal_map;
   boost::associative_property_map<Facet_double_map> sdf_property_map(internal_map);
 
   // compute SDF values
+  std::cout << "Computing sdf..."<<std::endl;
 
   const std::size_t number_of_rays = 25;  // cast 25 rays per facet
   const double cone_angle = 2.0 / 3.0 * CGAL_PI; // set cone opening-angle
@@ -56,6 +60,7 @@ int main ( int argc, char * argv[]) {
 
   //std::pair<double, double> min_max_sdf = CGAL::sdf_values(mesh, sdf_property_map);
 
+  std::cout << "Exporting sdf..."<<std::endl;
 
   // put SDF values in an array
 
@@ -91,7 +96,8 @@ int main ( int argc, char * argv[]) {
   else {
       std::cout << "open file error" << std::endl ;
       return -1 ; 
-  } ;
+  }
+  
   return 0 ;
 }
 
@@ -107,42 +113,21 @@ void afficheAide( void ) {
 
 double findBoxDimension ( Polyhedron P )
 {
-  Vertex_iterator v = P.vertices_begin() ;
-  std::vector<double> borders(6) ;
-    borders[0] = v->point().x() ;
-    borders[1] = v->point().x() ;
-    borders[2] = v->point().y() ;
-    borders[3] = v->point().y() ;
-    borders[4] = v->point().z() ;
-    borders[5] = v->point().z() ;
-  do {
-      double x = v->point().x() ;
-      double y = v->point().y() ;
-      double z = v->point().z() ; 
-      if ( x < borders[0] ) {
-          borders[0] = x ;
-      }
-      else if ( x > borders[1] ) {
-          borders[1] = x ;
-      }
-      if ( y < borders[2] ) {
-          borders[2] = y ;
-      }
-      else if ( y > borders[3] ) {
-          borders[3] = y ;
-      }
-      if ( z < borders[4] ) {
-          borders[4] = z ;
-      }
-      else if ( z > borders[5] ) {
-          borders[5] = z ;
-      }
-  } while ( v++ != P.vertices_end() ) ;
-   double values[] = {borders[1]-borders[0],borders[3]-borders[2],borders[5]-borders[4] } ;
-  std::cout<<"BBox = ("<<borders[0]<<" " <<borders[2]<<" "<<borders[4]<<") ("
-  <<borders[1]<<" " <<borders[3]<<" "<<borders[5]<<")"<<std::endl;
+  std::vector<double> res;
+  std::vector<Point> pts;
+  for(Vertex_iterator it = P.vertices_begin(), itend=P.vertices_end(); it!= itend; ++it)
+  {
+    Point p = it->point();
+    pts.push_back(p);
+  }
   
-   return *std::max_element(values,values+3) ;
+  Kernel::Iso_cuboid_3 bbox=CGAL::bounding_box(pts.begin(), pts.end());
+  
+  double values[] = {(bbox.xmax() - bbox.xmin()) ,
+                     (bbox.ymax() - bbox.ymin()),
+    (bbox.zmax() - bbox.zmin())};
+  
+  return *std::max_element(values,values+3) ;
 }
 
   // Note //

@@ -48,10 +48,12 @@ if ( Boost_FOUND )
 endif( Boost_FOUND )
 
 
-add_subdirectory(bruitage)
+add_subdirectory(off2pts)
+add_subdirectory(noise)
 add_subdirectory(sdf)
 add_subdirectory(distribution)
 add_subdirectory(emd)
 add_subdirectory(globalError)
 add_subdirectory(localError)
 add_subdirectory(thickness)
+add_subdirectory(distToOff)

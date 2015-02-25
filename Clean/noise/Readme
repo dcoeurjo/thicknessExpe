@@ -1,0 +1,40 @@
+*---------------------*
+| Compute noised mesh |
+*---------------------*
+
+With choice of type of noise :
+- gaussian on each coordinate : "Cubic" ;
+- idem in a sphere : "Spheric" ;
+- gaussian along the normal of each point  : "Normal".
+You can choose also the magnitude of noise ( in % of the longest diagonal of the bounding box )
+
+Input : A mesh ( OFF file )
+-------
+
+Output : The noised mesh
+--------
+
+To compile  :
+-------------
+
+mkdir build
+cd build
+cmake ..
+cmake .. # two times to include -std=gnu++0x for the random generator, weird... 
+make
+
+To use :
+--------
+
+
+
+./createNoise path/to/the/mesh.off option magnitude
+
+where option is :
+-c for "Cubic" noise
+-s for "Spheric" noise
+-n for "Normal" noise
+
+example :
+./createNoise ../knot.off -c 0.02
+

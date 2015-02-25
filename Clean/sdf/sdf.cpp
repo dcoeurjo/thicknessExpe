@@ -56,21 +56,24 @@ int main ( int argc, char * argv[]) {
   const std::size_t number_of_rays = 25;  // cast 25 rays per facet
   const double cone_angle = 2.0 / 3.0 * CGAL_PI; // set cone opening-angle
   CGAL::sdf_values(mesh, sdf_property_map, cone_angle, number_of_rays, false);
+  std::cout<<"Post processing..."<<std::endl;
   std::pair<double, double> min_max_sdf = CGAL::sdf_values_postprocessing(mesh, sdf_property_map);
-
-  //std::pair<double, double> min_max_sdf = CGAL::sdf_values(mesh, sdf_property_map);
 
   std::cout << "Exporting sdf..."<<std::endl;
 
-  // put SDF values in an array
-
+  
+  //SDF values are now postprocessed and thus in [0,1]
+  //We use the minmax to reset the normalization
+  // and scale from  the bounding box
   int size = mesh.size_of_facets() ;
   std::vector<double> values(size) ;
   int j = 0 ;
-  double factor = findBoxDimension(mesh)  / 2.0;
+  double factor = findBoxDimension(mesh)  ;
+  
+  std::cout << "Scale factor (longest BBox edge)= "<<factor << std::endl;
   for(Polyhedron::Facet_const_iterator facet_it = mesh.facets_begin();
       facet_it != mesh.facets_end(); ++facet_it) {
-      // Normalize ( real values normalized by the size of the bounding box )
+      // Normalize ( real values normalized by the size of the bounding box + half-length)
       values[j] = ((min_max_sdf.second - min_max_sdf.first) * sdf_property_map[facet_it] + min_max_sdf.first) / (2.0*factor) ;
       j++;
   }
@@ -89,7 +92,7 @@ int main ( int argc, char * argv[]) {
   std::ofstream fichier(fileResults.c_str(), std::ios::out);
   if (fichier) { 
       for(j=0;j<size;j++) {
-          fichier << ((double) (j+1)) / ((double) size) * 100 << " " << values[j] << std::endl ;
+          fichier << values[j] << std::endl ;
       }
       fichier.close() ;
   }
@@ -107,8 +110,8 @@ int main ( int argc, char * argv[]) {
 
 void afficheAide( void ) {
     std::cout << " Compare the thickness distributions ( by the Shape Diameter Function and with a volumetric method, with different resolutions contained in a text file ) of an object in .off format." << std::endl ;
-    std::cout << "Usage: ./profils <object file> <resolution file>" << std::endl ;
-    std::cout << "Output: a gnuplot script and a pdf figure with the distributions." << std::endl ;
+    std::cout << "Usage: ./sdf <off file> " << std::endl ;
+    std::cout << "Output: all sorted sdf values (smoothed and normaliazed using longest edge of BBox)" << std::endl ;
 }
 
 double findBoxDimension ( Polyhedron P )
@@ -129,16 +132,6 @@ double findBoxDimension ( Polyhedron P )
   
   return *std::max_element(values,values+3) ;
 }
-
-  // Note //
-  
-  // It is possible to compute the raw SDF values and post-process them using
-  // the following lines: ( instead of line 71 )
-  // const std::size_t number_of_rays = 25;  // cast 25 rays per facet
-  // const double cone_angle = 2.0 / 3.0 * CGAL_PI; // set cone opening-angle
-  // CGAL::sdf_values(mesh, sdf_property_map, cone_angle, number_of_rays, false);
-  // std::pair<double, double> min_max_sdf =
-  //  CGAL::sdf_values_postprocessing(mesh, sdf_property_map);
 
 
   

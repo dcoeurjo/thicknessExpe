@@ -48,6 +48,7 @@ if ( Boost_FOUND )
 endif( Boost_FOUND )
 
 
+add_subdirectory(ptsSpheresViewer)
 add_subdirectory(off2pts)
 add_subdirectory(noise)
 add_subdirectory(sdf)

@@ -37,7 +37,13 @@ int main ( int argc, char * argv[] ) {
     std::cerr << "Not a valid .off file" << std::endl;
   };
   std::cout << "Exporting..."<<std::endl;
-  std::string outputName = fileName.substr(0,fileName.size()-4)+".pts" ;
+  
+  std::string base_filename = fileName.substr(fileName.find_last_of("/\\") + 1);
+  std::string::size_type const p(base_filename.find_last_of('.'));
+  std::string file_without_extension = base_filename.substr(0, p);
+  std::string outputName = file_without_extension + ".pts" ;
+  std::cout << "filename= "<<outputName<<std::endl;
+  
   std::ofstream output(outputName,std::ios::out) ;
   
   for(Vertex_iterator v = mesh.vertices_begin(), vend=mesh.vertices_end();

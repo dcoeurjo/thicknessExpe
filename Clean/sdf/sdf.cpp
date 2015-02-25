@@ -88,7 +88,12 @@ int main ( int argc, char * argv[]) {
 
   
   // Write in files
-  std::string fileResults = fileName.substr(0,fileName.size()-4)+"-sdf.txt";
+  std::string base_filename = fileName.substr(fileName.find_last_of("/\\") + 1);
+  std::string::size_type const p(base_filename.find_last_of('.'));
+  std::string file_without_extension = base_filename.substr(0, p);
+  std::string fileResults = file_without_extension + "-sdf.txt" ;
+  std::cout << "filename= "<<fileResults<<std::endl;
+  
   std::ofstream fichier(fileResults.c_str(), std::ios::out);
   if (fichier) { 
       for(j=0;j<size;j++) {

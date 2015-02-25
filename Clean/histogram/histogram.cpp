@@ -17,6 +17,7 @@ using namespace std;
 int main(int argc, char**argv)
 {
   //Loading values  argv[1]==values  argv[2] == nbBins
+  std::string fileName = argv[1];
   ifstream values (argv[1], std::ifstream::in);
   double val;
   int cpt= 0;
@@ -39,7 +40,13 @@ int main(int argc, char**argv)
   hist.addValues(stats.begin(), stats.end());
   hist.terminate();
   trace.info()<< "Histogram= "<<hist<<std::endl;
-  std::string outputName = "histogram.dat";
+  
+  std::string base_filename = fileName.substr(fileName.find_last_of("/\\") + 1);
+  std::string::size_type const p(base_filename.find_last_of('.'));
+  std::string file_without_extension = base_filename.substr(0, p);
+  std::string outputName = file_without_extension + "-hist.dat" ;
+  std::cout << "filename= "<<outputName<<std::endl;
+  
   std::ofstream output(outputName,std::ios::out) ;
   
   for ( unsigned int i = 0; i < hist.size(); ++i )

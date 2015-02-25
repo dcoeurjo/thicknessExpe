@@ -73,7 +73,7 @@ int main(int argc, char**argv)
   for(unsigned int i = 0 ; i< hist1.size(); ++i)
     EMD += std::abs(hist1.cdf(i) - hist2.cdf(i));
   
-  trace.info() << "EMD= "<< EMD<<std::endl;
+  std::cout <<  "EMD= "<< EMD<<std::endl;
   return 0;
 }
 

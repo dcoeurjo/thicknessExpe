@@ -77,19 +77,24 @@ std::string convertNumber(double number) {
 
 std::pair<int,std::string> whatOption ( std::string& fileName , char * argv, double magnitude ) {
   int option ;
-  std::string noisedName ;
+  
+  std::string base_filename = fileName.substr(fileName.find_last_of("/\\") + 1);
+  std::string::size_type const p(base_filename.find_last_of('.'));
+  std::string file_without_extension = base_filename.substr(0, p);
+  std::string noisedName = file_without_extension ;
+  
   switch ( argv[1] ) {
     case 'c' :
       option = 1 ;
-      noisedName = fileName.substr(0,fileName.size()-4)+"-s="+convertNumber(magnitude)+"-cubic.off" ;
+      noisedName = noisedName+"-cubic.off" ;
       break ;
     case 's' :
       option = 2 ;
-      noisedName = fileName.substr(0,fileName.size()-4)+"-s="+convertNumber(magnitude)+"-spheric.off" ;
+      noisedName = noisedName+"-s="+convertNumber(magnitude)+"-spheric.off" ;
       break ;
     case 'n' :
       option = 3 ;
-      noisedName = fileName.substr(0,fileName.size()-4)+"-s="+convertNumber(magnitude)+"-normal.off" ;
+      noisedName = noisedName+"-s="+convertNumber(magnitude)+"-normal.off" ;
       break ;
     default :
       option = 0 ;

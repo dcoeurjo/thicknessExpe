@@ -23,7 +23,29 @@ std::string convertNumber(double number);
 std::pair<int,std::string> whatOption ( std::string& fileName, char * argv, double magnitude );
 int createNoiseOff ( char * fileName, const char * outputName, int option, double s );
 std::vector<double> findBoxBorder ( Polyhedron P );
-double longestDiagonalLength ( Polyhedron P );
+
+
+
+double findBoxDimension ( Polyhedron P )
+{
+  std::vector<double> res;
+  std::vector<Point> pts;
+  for(Vertex_iterator it = P.vertices_begin(), itend=P.vertices_end(); it!= itend; ++it)
+  {
+    Point p = it->point();
+    pts.push_back(p);
+  }
+  
+  Kernel::Iso_cuboid_3 bbox=CGAL::bounding_box(pts.begin(), pts.end());
+  
+  double values[] = {(bbox.xmax() - bbox.xmin()) ,
+    (bbox.ymax() - bbox.ymin()),
+    (bbox.zmax() - bbox.zmin())};
+  
+  return *std::max_element(values,values+3) ;
+}
+
+
 
 
 int main ( int argc, char * argv[] ) {
@@ -115,8 +137,8 @@ int createNoiseOff ( char * fileName, const char * outputName, int option, doubl
   std::cout << "Noisification..."<<std::endl;
   
   // Init generator
-  double s = magnitude/100*longestDiagonalLength(mesh);
-  std::cout<< "longest= "<<longestDiagonalLength(mesh)<<std::endl;
+  double s = magnitude/100*findBoxDimension(mesh);
+  std::cout<< "longest bbox edge= "<<findBoxDimension(mesh)<<std::endl;
   std::default_random_engine generator;
   std::normal_distribution<double> distribution(0.0,s);
   // apply different noises
@@ -208,22 +230,4 @@ int createNoiseOff ( char * fileName, const char * outputName, int option, doubl
 
   return 0;
 }
-
-double longestDiagonalLength ( Polyhedron P )
-{
-  std::vector<double> res;
-  std::vector<Point> pts;
-  for(Vertex_iterator it = P.vertices_begin(), itend=P.vertices_end(); it!= itend; ++it)
-  {
-    Point p = it->point();
-    pts.push_back(p);
-  }
-  
-  Kernel::Iso_cuboid_3 bbox=CGAL::bounding_box(pts.begin(), pts.end());
-  
-  return sqrt((bbox.xmax() - bbox.xmin())*(bbox.xmax() - bbox.xmin()) +
-              (bbox.ymax() - bbox.ymin())*(bbox.ymax() - bbox.ymin()) +
-              (bbox.zmax() - bbox.zmin())*(bbox.zmax() - bbox.zmin()));
-}
-
 

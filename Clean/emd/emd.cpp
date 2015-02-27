@@ -17,63 +17,74 @@ using namespace std;
  */
 int main(int argc, char**argv)
 {
-  //Loading values  argv[1]==data1  argv[2] == data2 argv[3] == nbBins
-  
+  //Loading values  argv[1]==data1  argv[2] == data2
   ifstream values1 (argv[1], std::ifstream::in);
   ifstream values2 (argv[2], std::ifstream::in);
 
   double val;
   int cpt= 0;
-  int bins = atoi(argv[3]);
-  Statistic<double> stats;
-  Statistic<double> stats1(true);
-  Statistic<double> stats2(true);
+  std::vector<double> stats1(true);
+  std::vector<double> stats2(true);
   trace.info() << "Loading data..."<<std::endl;
-  while (values1.good() || values2.good())
+ 
+  while (values1.good())
   {
-    if (values1.good())
-    {
-      values1>> val;
-      stats.addValue(val);
-      stats1.addValue(val);
-      ++cpt;
-    }
-    if (values2.good())
-    {
+    values1>> val;
+    stats1.push_back(val);
+    ++cpt;
+  }
+  
+  while(values2.good())
+  {
       values2>> val;
-      stats.addValue(val);
-      stats2.addValue(val);
+      stats2.push_back(val);
       ++cpt;
-    }
   }
   values1.close();
   values2.close();
-  stats.terminate();
-  stats1.terminate();
-  stats2.terminate();
   trace.info()<< "Nb values= "<<cpt<<std::endl;
-  trace.info() << "Global Statistic= "<<stats<<std::endl;
-  trace.info() << "Statistic 1= "<<stats1<<std::endl;
-  trace.info() << "Statistic 2= "<<stats2<<std::endl;
   
-  Histogram<double> hist1;
-  hist1.init( bins, stats1);
-  hist1.addValues(stats1.begin(), stats1.end());
-  hist1.terminate();
-  trace.info()<< "Histogram 1= "<<hist1<<std::endl;
+  std::vector<double>::const_iterator it1 = stats1.begin();
+  std::vector<double>::const_iterator it2 = stats2.begin();
+  double emd = 0.0;
+  double cdf1 = 0.0;
+  double cdf2 = 0.0;
+  double integralcdf1 = 0.0, integralcdf2=0.0;
+  double x, xprev=0.0;
+  double dx; //distance between two events
   
-  Histogram<double> hist2;
-  hist2.init( bins, stats2);
-  hist2.addValues(stats2.begin(), stats2.end());
-  hist2.terminate();
-  trace.info()<< "Histogram 2= "<<hist2<<std::endl;
+  {
+    //We get the next event
+    if (std::min(*it1, *it2) == *it1)
+    {
+      //Data from (1)
+      x = *it1;
+      dx = x - xprev;
+      integralcdf1 += cdf1*dx;
+      integralcdf2 += cdf2*dx;
+      cdf1++;
+      xprev = x;
+      ++it1;
+    }
+    else
+    {
+      //Data from (2)
+      x = *it2;
+      dx = x - xprev;
+      integralcdf1 += cdf1*dx;
+      integralcdf2 += cdf2*dx;
+      cdf2++;
+      xprev = x;
+      ++it2
+    }
+    emd  +=  std::abs( cdf1 - cdf2 );
+   
+    
+    
+  }
   
-  //EMD computation
-  double EMD=0;
-  for(unsigned int i = 0 ; i< hist1.size(); ++i)
-    EMD += std::abs(hist1.cdf(i) - hist2.cdf(i));
   
-  std::cout <<  "EMD= "<< EMD<<std::endl;
+  
   return 0;
 }
 

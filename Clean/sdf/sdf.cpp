@@ -68,13 +68,11 @@ int main ( int argc, char * argv[]) {
   int size = mesh.size_of_facets() ;
   std::vector<double> values(size) ;
   int j = 0 ;
-  double factor = findBoxDimension(mesh)  ;
   
-  std::cout << "Scale factor (longest BBox edge)= "<<factor << std::endl;
   for(Polyhedron::Facet_const_iterator facet_it = mesh.facets_begin();
       facet_it != mesh.facets_end(); ++facet_it) {
-      // Normalize ( real values normalized by the size of the bounding box + half-length)
-      values[j] = ((min_max_sdf.second - min_max_sdf.first) * sdf_property_map[facet_it] + min_max_sdf.first) / (2.0*factor) ;
+      // Normalize ( real values)
+      values[j] = ((min_max_sdf.second - min_max_sdf.first) * sdf_property_map[facet_it] + min_max_sdf.first) / (2.0) ;
       j++;
   }
   
@@ -84,8 +82,6 @@ int main ( int argc, char * argv[]) {
   std::cout << "Number of samples= "<< size<< std::endl;
   std::cout << "Max sdf value= "<< values[size -1]<< std::endl;
   std::cout << "Min sdf value= "<< values[0]<< std::endl;
-  std::cout << "Factor= "<< factor << std::endl;
-
   
   // Write in files
   std::string base_filename = fileName.substr(fileName.find_last_of("/\\") + 1);
@@ -119,25 +115,3 @@ void afficheAide( void ) {
     std::cout << "Output: all sorted sdf values (smoothed and normaliazed using longest edge of BBox)" << std::endl ;
 }
 
-double findBoxDimension ( Polyhedron P )
-{
-  std::vector<double> res;
-  std::vector<Point> pts;
-  for(Vertex_iterator it = P.vertices_begin(), itend=P.vertices_end(); it!= itend; ++it)
-  {
-    Point p = it->point();
-    pts.push_back(p);
-  }
-  
-  Kernel::Iso_cuboid_3 bbox=CGAL::bounding_box(pts.begin(), pts.end());
-  
-  double values[] = {(bbox.xmax() - bbox.xmin()) ,
-                     (bbox.ymax() - bbox.ymin()),
-    (bbox.zmax() - bbox.zmin())};
-  
-  return *std::max_element(values,values+3) ;
-}
-
-
-  
- 

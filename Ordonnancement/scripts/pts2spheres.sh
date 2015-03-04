@@ -4,8 +4,10 @@
 
 PTSNAME=$1
 ARITHM=$2
-CRUSTPATH=../crust/
+BUILDPATH=/Users/davidcoeurjolly/Sources/thicknessExpe/Clean/build/
+CRUSTPATH=$BUILDPATH/crust/
 
+echo $CRUSTPATH
 
 cp $PTSNAME tmp.pts
 

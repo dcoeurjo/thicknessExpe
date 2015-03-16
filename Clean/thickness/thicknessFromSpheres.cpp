@@ -182,40 +182,42 @@ int main( int argc, char * argv[] ) {
   
   std::cout << "Number of spheres= "<< spheres.size()  <<std::endl;
   std::cout << "Parameter (resolution or number of points)= "<< thirdArgument  <<std::endl;
-  std::cout << "Samples= "<< 3*thirdArgument  <<std::endl;
   
   //Get bboxwith
   BBox bbox = findBoundingBox( spheres );
   std::cout << "BBox= "<<bbox  <<std::endl;
   
-  // Init points and radius
-  Calcul calc(bbox,option,3*thirdArgument) ;
-
+  int nbProbes = 0;
+  
   std::vector<Box> boxes, pointBoxes ;
-  for ( Iterator i = spheres.begin(); i != spheres.end(); ++i ) {
+  //The spheres
+  for ( Iterator i = spheres.begin(); i != spheres.end(); ++i )
     boxes.push_back( Box(i->bbox(),i)) ;
-  }
   
-  for ( Iterator j = points.begin(); j != points.end(); ++j) {
-    pointBoxes.push_back( Box(j->bbox(),j)) ;
-  }
-  
-  CGAL::box_intersection_d( boxes.begin(), boxes.end(), pointBoxes.begin(), pointBoxes.end(), calc);
-  
-  //we keep the same number of points with thick!=0 in MC
-  int cpt=0;
-  while ((cpt < maxRadius.size()) && (maxRadiusClean.size() < thirdArgument))
+  while (nbProbes < thirdArgument)
   {
-    if (maxRadius[cpt] != 0)
+    // Init points
+    std::cout<<" ==== MC run"<<std::endl;
+    pointBoxes.clear();
+    Calcul calc(bbox,option,thirdArgument) ;
+    for ( Iterator j = points.begin(); j != points.end(); ++j)
+        pointBoxes.push_back( Box(j->bbox(),j)) ;
+    
+    CGAL::box_intersection_d( boxes.begin(), boxes.end(), pointBoxes.begin(), pointBoxes.end(), calc);
+  
+    int cpt=0;
+    while ((cpt < maxRadius.size()) && (nbProbes < thirdArgument))
     {
-      maxRadiusClean.push_back(maxRadius[cpt]);
+      if (maxRadius[cpt] != 0)
+      {
+        maxRadiusClean.push_back(maxRadius[cpt]);
+        nbProbes++;
+      }
+      cpt++;
     }
-    cpt++;
   }
   
-  if (maxRadiusClean.size() < thirdArgument)
-    std::cout<< "WARNING !!!!!! not enough point in the shape"<<std::endl;
-  
+
   sort(maxRadiusClean.begin(),maxRadiusClean.end()) ;
   
   int firstNonZeroValue = nonZeroValues(maxRadiusClean) ;
